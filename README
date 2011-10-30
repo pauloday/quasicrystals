@@ -20,6 +20,14 @@ Example:
 
 $ convert -loop 0 *.png animation.gif
 
+The availible parameters of write-images are:
+scale: The scale of the animation, a scale of 4 means that for every point, a 4x4 box is drawn. Default is 1
+order: The number of waves to combine. Quasicrystals only emerge after order=4. Default is 7.
+width and height: The dimensions of the image. Default is 200x200
+frames: The number of frames to render. More frames means a smoother animation. The animation will always loop. Default is 25
+path: The path to draw to. For now it is a absolute path that must have a "/" at tle end. Defaults to current directory
+r, g, b: The color offset. A offset of 10 for r means that red will be"(shade + 10) mod 255""  of the other colors, so when all of the other colors are 0, red is 10, giving the blacks a slight reddish tinge, and the whites a slight blue-green tinge, as red will have wrapped around to 245. All 3 default to 0.
+
 ## License
 
 Copyright (C) 2011 FIXME
