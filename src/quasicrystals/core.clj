@@ -78,8 +78,8 @@ frames of animation: 25; path: current directory"
       (draw-crystals
        (crystal (* width scale)
                 (* height scale) p order) gfx scale r g b)
-      (write-image bi (str path c))
-      (println (str "Wrote image " p)))))
+      (write-image bi (str path p))
+      (println (str "Wrote image " c)))))
 
 ;this is the entry point if I ever get a indpendant jar up and running
 (defn -main [& args]
