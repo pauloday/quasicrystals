@@ -1,10 +1,24 @@
 # quasicrystals
 
-FIXME: write description
+A program that animates quasicrystals on a plane as seen here: http://mainisusuallyafunction.blogspot.com/2011/10/quasicrystals-as-sums-of-waves-in-plane.html. Generates them as png frames of a animation, that can be combined into a gif image or whatever later (I would recomend Imagemagick for gifs)
 
 ## Usage
 
-FIXME: write
+Just load up core.clj, and in the quasicrystals.core namespace, run write-images with the desired parameters.
+Example:
+
+$ clj
+
+user=> (load "src/quasicrystals/core")
+
+user=> (in-ns 'quasicrystals.core)
+
+user=> (write-image :path "/path/to/images/")
+
+examples of outputed images and animated gifs made from said images are in the images/ directory. I use imagemagick to convert the frames to a gif.
+Example:
+
+$ convert -loop 0 *.png animation.gif
 
 ## License
 
