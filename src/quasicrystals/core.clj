@@ -10,7 +10,7 @@ foreward by phase"
   [theta x y phase]
   (let [cth (Math/cos theta)
         sth (Math/sin theta)]
-    (+ (/ (+ (Math/cos (+ (* cth x) (* sth y) phase)) 1) 2) 0)))
+    (/ (+ (Math/cos (+ (* cth x) (* sth y) phase)) 1) 2)))
 
 (defn angles
   "Returns a list of n angles between 0 and PI"
@@ -72,9 +72,9 @@ r component of the color is the shade + 10, modulus 255"
 main function in this program, all of the parameters you should need
 can be passed to this function. Defaults: r,g,b offsets: 0; w,h: 200,200
 frames of animation: 25; path: current directory"
-  [& {:keys [scale order width height frames path r g b]
-      :or {scale 2 order 7 width 100 height 100
-           frames 20 path ""}}]
+  [& {:keys [scale order width height frames path]
+      :or {scale 3 order 6 width 640 height 360
+           frames 200 path ""}}]
   (let [[bi gfx] (init-image width height)]
     (doseq [[p c]
             (for [m (range frames)]
@@ -85,6 +85,6 @@ frames of animation: 25; path: current directory"
        (periodic c frames 0)
        (periodic c frames 0.25)
        (periodic c frames 0.5))
-      (write-image bi (str path p))
+      (write-image bi (str path (format "%03d" c)))
       (println (periodic c frames 0) (periodic c frames 0.25) (periodic c frames 0.5))
       (println (str "Wrote image " c)))))
