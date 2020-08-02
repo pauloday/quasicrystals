@@ -4,12 +4,16 @@
   (import java.io.File)
   (:gen-class))
 
+(def memosin (memoize #(Math/sin %)))
+(def memocos (memoize #(Math/cos %)))
+(def memoasin (memoize #(Math/asin %)))
+
 (defn wave
   "Returns waveform, the cos of all the y-values rotated by theta and moved
 foreward by phase"
   [theta x y phase]
-  (let [cth (Math/cos theta)
-        sth (Math/sin theta)]
+  (let [cth (memocos theta)
+        sth (memosin theta)]
     (/ (+ (Math/cos (+ (* cth x) (* sth y) phase)) 1) 2)))
 
 (defn angles
@@ -65,7 +69,7 @@ r component of the color is the shade + 10, modulus 255"
   "Swatooth wave going from 0 to 255 and back over m frames, with offset o"
   [n m o]
   (let [pix (* (+ o (/ n m)) (Math/PI))]
-    (Math/abs (int (* 51 (Math/PI) (Math/asin (Math/sin pix)))))))
+    (Math/abs (int (* 51 (Math/PI) (memoasin (memosin pix)))))))
 
 (defn write-images
   "Writes f frames of animation, that can be looped, to dir. This is the
@@ -73,8 +77,8 @@ main function in this program, all of the parameters you should need
 can be passed to this function. Defaults: r,g,b offsets: 0; w,h: 200,200
 frames of animation: 25; path: current directory"
   [& {:keys [scale order width height frames path]
-      :or {scale 3 order 6 width 640 height 360
-           frames 200 path ""}}]
+      :or {scale 3 order 6 width 64 height 36
+           frames 3 path ""}}]
   (let [[bi gfx] (init-image width height)]
     (doseq [[p c]
             (for [m (range frames)]
