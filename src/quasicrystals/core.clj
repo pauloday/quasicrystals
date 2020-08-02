@@ -2,8 +2,7 @@
   (import java.awt.image.BufferedImage)
   (import javax.imageio.ImageIO)
   (import java.io.File)
-  (:gen-class)
-  (:use clojure.contrib.command-line))
+  (:gen-class))
 
 (defn wave
   "Returns waveform, the cos of all the y-values rotated by theta and moved
@@ -62,38 +61,30 @@ r component of the color is the shade + 10, modulus 255"
   [bi name]
   (ImageIO/write bi "png"  (File. (str name "-crystal.png"))))
 
+(defn periodic
+  "Swatooth wave going from 0 to 255 and back over m frames, with offset o"
+  [n m o]
+  (let [pix (* (+ o (/ n m)) (Math/PI))]
+    (Math/abs (int (* 51 (Math/PI) (Math/asin (Math/sin pix)))))))
+
 (defn write-images
   "Writes f frames of animation, that can be looped, to dir. This is the
 main function in this program, all of the parameters you should need
 can be passed to this function. Defaults: r,g,b offsets: 0; w,h: 200,200
 frames of animation: 25; path: current directory"
   [& {:keys [scale order width height frames path r g b]
-      :or {scale 1 order 7 width 200 height 200
-           frames 25 path ""
-           r 0 g 0 b 0}}]
+      :or {scale 2 order 7 width 100 height 100
+           frames 20 path ""}}]
   (let [[bi gfx] (init-image width height)]
     (doseq [[p c]
             (for [m (range frames)]
               [(float (* (/ (* 2 Math/PI) frames) m)) m])]
       (draw-crystals
        (crystal (* width scale)
-                (* height scale) p order) gfx scale r g b)
+                (* height scale) p order) gfx scale
+       (periodic c frames 0)
+       (periodic c frames 0.25)
+       (periodic c frames 0.5))
       (write-image bi (str path p))
+      (println (periodic c frames 0) (periodic c frames 0.25) (periodic c frames 0.5))
       (println (str "Wrote image " c)))))
-
-;this is the entry point if I ever get a indpendant jar up and running
-(defn -main [& args]
-  (with-command-line args
-    "Animate quasicrystals, see
-http://mainisusuallyafunction.blogspot.com/2011/10/quasicrystals-as-sums-of-waves-in-plane.html for details"
-      [[scale "The scale of the animation, default is 1" 1]
-       [order "The number of waves to combine, default is 7" 7]
-       [width "Width of the animation, default is 200" 200]
-       [height "Height of the animation, default is 200" 200]
-       [frames "Number of frames in the animation, default is 25" 25]
-       [path "The filepath to write to, default is current directory" ""]
-       [r "The red offset, default is 0" 0]
-       [g "The green offset, default is 0" 0]
-       [b "The blue offset, default is 0" 0]]
-      (write-images :scale scale :order order :width width
-                    :height height :frames frames :path path :r r :g g :b b)))
