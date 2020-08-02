@@ -1,7 +1,9 @@
 (ns quasicrystals.core
-  (import java.awt.image.BufferedImage)
-  (import javax.imageio.ImageIO)
-  (import java.io.File)
+  (:import java.awt.image.BufferedImage
+           java.io.File 
+           javax.imageio.ImageIO
+           java.awt.Color)
+  (:require [fastmath.core :refer [sin cos asin abs PI constrain floor]])
   (:gen-class))
 
 (def memosin (memoize #(Math/sin %)))
@@ -12,14 +14,14 @@
   "Returns waveform, the cos of all the y-values rotated by theta and moved
 foreward by phase"
   [theta x y phase]
-  (let [cth (memocos theta)
-        sth (memosin theta)]
-    (/ (+ (Math/cos (+ (* cth x) (* sth y) phase)) 1) 2)))
+  (let [cth (cos theta)
+        sth (sin theta)]
+    (/ (+ (cos (+ (* cth x) (* sth y) phase)) 1) 2)))
 
 (defn angles
   "Returns a list of n angles between 0 and PI"
   [n]
-  (for [m (range n)] (* m (/ Math/PI n))))
+  (for [m (range n)] (* m (/ PI n))))
 
 (defn combine
   "Combines a list of values, and wraps the result between 1 and 0"
@@ -53,11 +55,10 @@ r, g, and b are the color offsets, so a r-value of 10 means that the
 r component of the color is the shade + 10, modulus 255"
   [wave gfx scale r g b]
   (doseq [[x y shade] wave]
-    (let [clamp (fn [x mn mx] (min (max x mn) mx))
-          color (int (Math/floor (* 255 (clamp shade 0 1))))]
-      (.setColor gfx (java.awt.Color. (Math/abs (- color r))
-                                      (Math/abs (- color g))
-                                      (Math/abs (- color b))))
+    (let [color (int (floor (* 255 (constrain shade 0 1))))]
+      (.setColor gfx (Color. (Math/abs (- color r))
+                             (Math/abs (- color g))
+                             (Math/abs (- color b))))
       (.fillRect gfx (* x scale) (* y scale) 4 4))))
 
 (defn write-image
@@ -68,8 +69,8 @@ r component of the color is the shade + 10, modulus 255"
 (defn periodic
   "Swatooth wave going from 0 to 255 and back over m frames, with offset o"
   [n m o]
-  (let [pix (* (+ o (/ n m)) (Math/PI))]
-    (Math/abs (int (* 51 (Math/PI) (memoasin (memosin pix)))))))
+  (let [pix (* (+ o (/ n m)) PI)]
+    (int (abs (* 51 PI (asin (sin pix)))))))
 
 (defn write-images
   "Writes f frames of animation, that can be looped, to dir. This is the
@@ -82,7 +83,7 @@ frames of animation: 25; path: current directory"
   (let [[bi gfx] (init-image width height)]
     (doseq [[p c]
             (for [m (range frames)]
-              [(float (* (/ (* 2 Math/PI) frames) m)) m])]
+              [(float (* (/ (* 2 PI) frames) m)) m])]
       (draw-crystals
        (crystal (* width scale)
                 (* height scale) p order) gfx scale
