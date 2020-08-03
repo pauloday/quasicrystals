@@ -1,7 +1,8 @@
 (ns quasicrystals.core
-  (import java.awt.image.BufferedImage)
-  (import javax.imageio.ImageIO)
-  (import java.io.File)
+  (:import java.awt.image.BufferedImage
+           javax.imageio.ImageIO
+           java.io.File
+           Riven)
   (:gen-class))
 
 (def memosin (memoize #(Math/sin %)))
@@ -21,6 +22,8 @@ foreward by phase"
   [n]
   (for [m (range n)] (* m (/ Math/PI n))))
 
+(def mangles (memoize angles))
+
 (defn combine
   "Combines a list of values, and wraps the result between 1 and 0"
   [wavs]
@@ -37,7 +40,7 @@ foreward by phase"
     [x y
      (combine
       (map (fn [th] (wave th x y phase))
-           (angles order)))]))
+           (mangles order)))]))
 
 (defn init-image
   "Returns a tuple of a java.awt.image.BufferedImage,
@@ -47,14 +50,18 @@ and its java.awt.Graphics2D"
         gfx (.createGraphics bi)]
     [bi gfx]))
 
+(def mcolor
+  (letfn [(clamp [x mn mx] (min (max x mn) mx))
+          (color [shade] (int (Math/floor (* 255 (clamp shade 0 1)))))]
+    color))
+
 (defn draw-crystals
   "Draws the crystal qc to the graphics gfx. Scale is the zoom level
 r, g, and b are the color offsets, so a r-value of 10 means that the
 r component of the color is the shade + 10, modulus 255"
   [wave gfx scale r g b]
   (doseq [[x y shade] wave]
-    (let [clamp (fn [x mn mx] (min (max x mn) mx))
-          color (int (Math/floor (* 255 (clamp shade 0 1))))]
+    (let [color (mcolor shade)]
       (.setColor gfx (java.awt.Color. (Math/abs (- color r))
                                       (Math/abs (- color g))
                                       (Math/abs (- color b))))
@@ -71,14 +78,16 @@ r component of the color is the shade + 10, modulus 255"
   (let [pix (* (+ o (/ n m)) (Math/PI))]
     (Math/abs (int (* 51 (Math/PI) (memoasin (memosin pix)))))))
 
+(def mper (memoize periodic))
+
 (defn write-images
   "Writes f frames of animation, that can be looped, to dir. This is the
 main function in this program, all of the parameters you should need
 can be passed to this function. Defaults: r,g,b offsets: 0; w,h: 200,200
 frames of animation: 25; path: current directory"
   [& {:keys [scale order width height frames path]
-      :or {scale 3 order 6 width 64 height 36
-           frames 3 path ""}}]
+      :or {scale 1 order 6 width 640 height 360
+           frames 20 path ""}}]
   (let [[bi gfx] (init-image width height)]
     (doseq [[p c]
             (for [m (range frames)]
@@ -86,9 +95,8 @@ frames of animation: 25; path: current directory"
       (draw-crystals
        (crystal (* width scale)
                 (* height scale) p order) gfx scale
-       (periodic c frames 0)
-       (periodic c frames 0.25)
-       (periodic c frames 0.5))
+       (mper c frames 0)
+       (mper c frames 0.25)
+       (mper c frames 0.5))
       (write-image bi (str path (format "%03d" c)))
-      (println (periodic c frames 0) (periodic c frames 0.25) (periodic c frames 0.5))
       (println (str "Wrote image " c)))))
