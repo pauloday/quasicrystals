@@ -1,7 +1,7 @@
 (ns quasicrystals.core
-  (import java.awt.image.BufferedImage)
-  (import javax.imageio.ImageIO)
-  (import java.io.File)
+  (:import java.awt.image.BufferedImage
+           javax.imageio.ImageIO
+           java.io.File)
   (:gen-class))
 
 (defn wave
@@ -73,8 +73,8 @@ main function in this program, all of the parameters you should need
 can be passed to this function. Defaults: r,g,b offsets: 0; w,h: 200,200
 frames of animation: 25; path: current directory"
   [& {:keys [scale order width height frames path]
-      :or {scale 3 order 6 width 640 height 360
-           frames 200 path ""}}]
+      :or {scale 1 order 6 width 640 height 360
+           frames 20 path ""}}]
   (let [[bi gfx] (init-image width height)]
     (doseq [[p c]
             (for [m (range frames)]
@@ -86,5 +86,4 @@ frames of animation: 25; path: current directory"
        (periodic c frames 0.25)
        (periodic c frames 0.5))
       (write-image bi (str path (format "%03d" c)))
-      (println (periodic c frames 0) (periodic c frames 0.25) (periodic c frames 0.5))
       (println (str "Wrote image " c)))))
