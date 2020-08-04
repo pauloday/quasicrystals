@@ -1,0 +1,10 @@
+[package]
+name = "quasicrystals"
+version = "0.1.0"
+authors = ["ertdfgcb <odaypaul@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+image = "0.23.8"
