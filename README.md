@@ -1,6 +1,6 @@
 # Quasicrystals
 
-![Animation](https://github.com/ertdfgcb/quasicrystals/blob/master/animation.gif)
+![Animation](https://github.com/ertdfgcb/quasicrystals/blob/master/crystal.gif)
 
 A program that animates quasicrystals on a plane as seen [here](http://mainisusuallyafunction.blogspot.com/2011/10/quasicrystals-as-sums-of-waves-in-plane.html). Generates them as frames of a animation, that can be combined into a gif image or whatever later. I would recomend Imagemagick for gifs and ffmpeg for videos.
 
