@@ -42,6 +42,8 @@ fn main() {
     x_offset: opts.x_offset,
     y_offset: opts.y_offset
   };
+  println!("Writing {} frames at {}x{} with order {} and scale {}",
+    opts.frames, opts.width, opts.height, opts.order, opts.scale);
   for frame in 0..frames {
     let colorize = |s| color::saw_colorize(s, frame, frames);
     let phase = frame_phase(frame, frames);
