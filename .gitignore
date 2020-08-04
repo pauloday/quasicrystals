@@ -6,5 +6,5 @@ pom.xml
 .lein-failures
 .lein-deps-sum
 .DS_	Store
-/images/
+images/
 target/

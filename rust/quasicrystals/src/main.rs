@@ -38,15 +38,15 @@ fn crystal<F: Fn(f64) -> Rgb<u8>>(
     let angs = angles(order);
     let mut imgbuf = RgbImage::new(x_max, y_max);
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
-      let scaled_x = scaled_point(scale, x_max, x);
-      let scaled_y = scaled_point(scale, y_max, y);
+      let max_dim = x_max.max(y_max);
+      let scaled_x = scaled_point(scale, max_dim, x);
+      let scaled_y = scaled_point(scale, max_dim, y);
       let part_wave = |rot: &f64| wave(*rot, phase, scaled_x, scaled_y);
       let waves = angs.iter().map(part_wave);
       let stacked = combine(waves.collect());
       let clamped = (1 as f64).min(stacked.max(0 as f64));
       let shade = clamped * 255.0;
       *pixel = colorize(shade);
-      // place_pixels(&mut imgbuf, pixel, scale, x * scale, y * scale);
   }
   return imgbuf;
 }
@@ -66,10 +66,19 @@ fn saw_colorize(shade: f64, frame: i64, frames: i64) -> Rgb<u8> {
   return Rgb([r, g, b]);
 }
 
+fn frame_phase(frame: i64, frames: i64) -> f64{
+  let pi = std::f64::consts::PI;
+  return ((2.0 * pi) / frames as f64) * frame as f64;
+}
+
 fn main() {
-  let frames = 10;
-  let colorize = |s| saw_colorize(s, 7, frames);
-  // let colorize = |s| Rgb([s as u8, s as u8, s as u8]);
-  let frame = crystal(colorize, 1.0, 7, 32, 800, 800);
-  frame.save("test.png").unwrap();
+  let frames = 1000;
+  for frame in 0..frames {
+    let colorize = |s| saw_colorize(s, frame, frames);
+    let phase = frame_phase(frame, frames);
+    let frame_image = crystal(colorize, phase, 7, 80, 800, 800);
+    let name = format!("./images/{:05}.jpg", frame);
+    frame_image.save(&name).unwrap();
+    println!("wrote image {}", &name);
+  }
 }
