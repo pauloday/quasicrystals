@@ -2,6 +2,9 @@ pom.xml
 *jar
 /lib/
 /classes/
+/clojure/target
 .lein-failures
 .lein-deps-sum
 .DS_	Store
+/images/
+target/

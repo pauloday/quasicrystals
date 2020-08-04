@@ -1,0 +1,35 @@
+(time (write-images))
+exit
+(time (write-images))
+exit
+(time (write-images))
+exit
+(time (write-images))
+exit
+(time (write-images))
+:reload-all
+(time (write-images))
+:reload-all
+(time (write-images))
+:reload-all
+(time (write-images))
+(refresh)
+(use 'quaicrystals.core :reload-all)
+(use 'quaicrystals.core :reload)
+(time (write-images))
+(use 'quaicrystals.core :reload)
+(time (write-images))
+(time (map cos (range 10000)))
+(time (map #(cos %) (range 10000)))
+(time (doseq #(cos %) (range 10000)))
+(time (doseq [x (range 10000)] (cos x))
+)
+(time (doseq [x (range 10000)] (cos x)))
+(time (doseq [x (range 10000)] (Math/cos x)))
+(time (doseq [x (range 10000)] (cos x)))
+(time (write-images))
+(time (doseq [x (range 10000)] (FastMatj/cos x)))
+(time (doseq [x (range 10000)] (FastMath/cos x)))
+(time (doseq [x (range 10000)] (cos x)))
+(time (doseq [x (range 10000)] (FastMath/cos x)))
+(time (write-images))
