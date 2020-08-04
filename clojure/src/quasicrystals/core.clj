@@ -73,8 +73,8 @@ main function in this program, all of the parameters you should need
 can be passed to this function. Defaults: r,g,b offsets: 0; w,h: 200,200
 frames of animation: 25; path: current directory"
   [& {:keys [scale order width height frames path]
-      :or {scale 1 order 6 width 640 height 360
-           frames 20 path ""}}]
+      :or {scale 1 order 7 width 640 height 360
+           frames 1 path ""}}]
   (let [[bi gfx] (init-image width height)]
     (doseq [[p c]
             (for [m (range frames)]
