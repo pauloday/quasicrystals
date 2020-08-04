@@ -2,6 +2,8 @@
 
 ![Animation](https://github.com/ertdfgcb/quasicrystals/blob/master/crystal.gif)
 
+Longer, larger animation [here](https://www.youtube.com/watch?v=80SDg1xT0sE).
+
 A program that animates quasicrystals on a plane as seen [here](http://mainisusuallyafunction.blogspot.com/2011/10/quasicrystals-as-sums-of-waves-in-plane.html). Generates them as frames of a animation, that can be combined into a gif image or whatever later. I would recomend Imagemagick for gifs and ffmpeg for videos.
 
 I added colorization by mapping the shade for each pixel to a sawtooth wave for each channel. The waves are shifted so each channel is at a different point of the wave for each frame. The wave goes through one full period over the course of a whole animation.
