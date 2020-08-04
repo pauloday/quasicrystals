@@ -72,11 +72,11 @@ fn frame_phase(frame: i64, frames: i64) -> f64{
 }
 
 fn main() {
-  let frames = 90;
+  let frames = 30;
   for frame in 0..frames {
     let colorize = |s| saw_colorize(s, frame, frames);
     let phase = frame_phase(frame, frames);
-    let frame_image = crystal(colorize, phase, 6, 80, 500, 500);
+    let frame_image = crystal(colorize, phase, 6, 32, 250, 250);
     let name = format!("./images/{:05}.jpg", frame);
     frame_image.save(&name).unwrap();
     println!("wrote image {}", &name);
