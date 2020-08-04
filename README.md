@@ -17,9 +17,9 @@ First, compile it:
 
 Then run it (this will generate the frames for the included gif example):
 
-`./target/release/quasicrystals 200 200 30 6 32`
+`./target/release/quasicrystals 200 200 6 32 -f 30`
 
-Pass --help for usage documentation:
+Pass --help for full usage:
 ```
 $ quasicrystals --help
 
@@ -27,18 +27,22 @@ quasicrystals 1.0
 Paul O'Day <https://github.com/ertdfgcb/quasicrystals>
 
 USAGE:
-    quasicrystals <width> <height> <frames> <order> <scale> [ARGS]
+    quasicrystals [OPTIONS] <width> <height> <order> <scale>
 
 ARGS:
     <width>     Image width in pixels
     <height>    Image height in pixels
-    <frames>    Number of frames to generate
     <order>     Number of rotated waves to stack
     <scale>     Scaling factor, lower is more zoomed in
-    <output>    Output path [default: ./]
-    <format>    Ouput format [default: jpg]
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
+
+OPTIONS:
+    -f, --frames <frames>                Number of frames to generate [default: 1]
+    -i, --image-format <image-format>    Ouput format [default: jpg]
+    -o, --output <output>                Output path [default: ./]
+    -x, --x-offset <x-offset>            X viewport offset [default: 0]
+    -y, --y-offset <y-offset>            Y viewport offset [default: 0]
 ```
