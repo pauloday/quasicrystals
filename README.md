@@ -43,6 +43,7 @@ OPTIONS:
     -f, --frames <frames>                Number of frames to generate [default: 1]
     -i, --image-format <image-format>    Ouput format [default: jpg]
     -o, --output <output>                Output path [default: ./]
+    -t, --threads <threads>              Number of threads to use [default: 1]
     -x, --x-offset <x-offset>            X viewport offset [default: 0]
     -y, --y-offset <y-offset>            Y viewport offset [default: 0]
 ```
