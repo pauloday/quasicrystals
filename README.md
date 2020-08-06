@@ -4,11 +4,15 @@
 
 Longer, larger animation [here](https://www.youtube.com/watch?v=80SDg1xT0sE).
 
-A program that animates quasicrystals on a plane as seen [here](http://mainisusuallyafunction.blogspot.com/2011/10/quasicrystals-as-sums-of-waves-in-plane.html). Generates them as frames of a animation, that can be combined into a gif image or whatever later. I would recomend Imagemagick for gifs and ffmpeg for videos.
+A program that animates quasicrystals animations. I first saw [this](http://mainisusuallyafunction.blogspot.com/2011/10/quasicrystals-as-sums-of-waves-in-plane.html) article in 2011 and I thought it was super cool, but had some opportunities to make it more colorful. I was also learning Clojure, so I figured I'd rewrite it and add some color. My initial implementation was super slow, didn't scale right (the images looked pixellated), and didn't have the type of colorization I was looking for. But still I was happy with it and figured I'd come back to it at some point, eventually just forgetting about it. 9 years later I've come back and added the colorization I was after, rewritten it in Rust (for a *massive* speed increase), and now I'm looking into adjusting some other parameters to add more variation/color options.
 
-I added colorization by mapping the shade for each pixel to a sawtooth wave for each channel. The waves are shifted so each channel is at a different point of the wave for each frame. The wave goes through one full period over the course of a whole animation.
+Right now it only generates frames, you have to convert them to a GIF (I use imagemagick) or video (I use ffmpeg) yourself. But directly generating the animations is planned (issue #13).
 
-There's a (slow, blocky) Clojure version in the Clojure branch. I might update it eventually but for now I'm focusing on speeding up the Rust implementation.
+I added colorization by mapping the shade for each pixel to a sawtooth wave for each channel. The waves are shifted so each channel is at a different point of the wave for each frame. The colorization wave goes through one full period over the course of a whole animation. I'd like to add some tuning so the specific colors can be adjusted, and some other waveforms (issue #10). If you have any cool ideas about how to convert a single byte into a color, you can add it to `color.rs`. I welcome pull requests! Or just message me, I'd probably be down to implement it myself.
+
+I'm also planning on adding settings to make things like zoom level, viewport offset, angle between/number of waves vary over the course of the animation (issue #14).
+
+The old, slow, blocky Clojure version from 2011 is in the Clojure branch. I might update it eventually but for now I'm focusing on the Rust implementation.
 
 ## Usage
 First, compile it:
