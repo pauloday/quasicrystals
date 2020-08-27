@@ -26,17 +26,17 @@ Then run it (this will generate the frames for the included gif example):
 Pass --help for full usage:
 ```
 $ quasicrystals --help
-
-quasicrystals 1.0
+quasicrystals 1.1
 Paul O'Day <https://github.com/ertdfgcb/quasicrystals>
 
 USAGE:
-    quasicrystals [OPTIONS] <width> <height> <order> <scale>
+    quasicrystals [OPTIONS] <width> <height> <angles> <scale>
 
 ARGS:
     <width>     Image width in pixels
     <height>    Image height in pixels
-    <order>     Number of rotated waves to stack
+    <angles>    Proportional angles between waves (e.g. 1,2 -> 0°, 240°). If only one number is given it will use
+                that many waves evenly rotated
     <scale>     Scaling factor, lower is more zoomed in
 
 FLAGS:
@@ -49,5 +49,5 @@ OPTIONS:
     -o, --output <output>                Output path [default: ./]
     -t, --threads <threads>              Number of threads to use [default: 1]
     -x, --x-offset <x-offset>            X viewport offset [default: 0]
-    -y, --y-offset <y-offset>            Y viewport offset [default: 0]
+    -y, --y-offset <y-offset>            Y viewport offset [default: 0]k
 ```

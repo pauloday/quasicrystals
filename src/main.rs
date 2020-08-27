@@ -5,14 +5,14 @@ mod crystal;
 mod color;
 
 #[derive(Clap)]
-#[clap(version = "1.0", author = "Paul O'Day <https://github.com/ertdfgcb/quasicrystals>")]
+#[clap(version = "1.1", author = "Paul O'Day <https://github.com/ertdfgcb/quasicrystals>")]
 struct Opts {
   #[clap(about = "Image width in pixels")]
   width: u32,
   #[clap(about = "Image height in pixels")]
   height: u32,
-  #[clap(about = "Number of rotated waves to stack")]
-  order: u32,
+  #[clap(about = "Proportional angles between waves (e.g. 1,2 -> 0°, 240°). If only one number is given it will use that many waves evenly rotated")]
+  angles: String,
   #[clap(about = "Scaling factor, lower is more zoomed in")]
   scale: u32,
   #[clap(short, long, about = "Number of frames to generate", default_value = "1")]
@@ -29,6 +29,15 @@ struct Opts {
   threads: u32
 }
 
+fn parse_angles(angles_string: String) -> Vec<f64>{
+  let angle_strings = angles_string.split(",").collect::<Vec<&str>>();
+  let angles: Vec<u32> = angle_strings.iter().map(|s| s.parse::<u32>().unwrap()).collect();
+  if angles.len() == 1 {
+    return crystal::custom_angles(vec![1; angles[0] as usize]);
+  }
+  return crystal::custom_angles(angles);
+}
+
 fn frame_phase(frame: u32, frames: u32) -> f64{
   let pi = std::f64::consts::PI;
   return ((2.0 * pi) / frames as f64) * frame as f64;
@@ -39,8 +48,8 @@ fn write_frames_thread(start: u32, end: u32, thread_num: u32) -> thread::JoinHan
     println!("spawned thread {} to write frames {} to {}", thread_num, start, end);
     let opts: Opts = Opts::parse();
     let frames = opts.frames;
+    let angles: Vec<f64> = parse_angles(opts.angles);
     let crystal_params: crystal::Params = crystal::Params {
-      order: opts.order,
       scale: opts.scale,
       width: opts.width,
       height: opts.height,
@@ -50,7 +59,7 @@ fn write_frames_thread(start: u32, end: u32, thread_num: u32) -> thread::JoinHan
     for frame in start..end {
       let colorize = |s| color::saw_colorize(s, frame, frames);
       let phase = frame_phase(frame, frames);
-      let frame_image = crystal::gen(colorize, phase, &crystal_params);
+      let frame_image = crystal::gen(colorize, phase, &angles, &crystal_params);
       let file_name = format!("{:06}.{}", frame, opts.image_format);
       let path: PathBuf = [&opts.output, &file_name].iter().collect();
       frame_image.save(&path).unwrap();
@@ -63,8 +72,8 @@ fn write_frames_thread(start: u32, end: u32, thread_num: u32) -> thread::JoinHan
 fn main() {
   let opts: Opts = Opts::parse();
   let frames = opts.frames;
-  println!("Writing {} frames at {}x{} with order {} and scale {}",
-    opts.frames, opts.width, opts.height, opts.order, opts.scale);
+  println!("Writing {} frames at {}x{} with angles {} and scale {}",
+    opts.frames, opts.width, opts.height, opts.angles, opts.scale);
   if frames < opts.threads {
     let frame_thread = write_frames_thread(0, frames, 1);
     frame_thread.join().unwrap();
