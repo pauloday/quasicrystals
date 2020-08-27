@@ -17,11 +17,23 @@ fn combine(waves: Vec<f64>) -> f64 {
   return 1.0 - wrapped;
 }
 
-fn angles(n: u32) -> Vec<f64> {
+// takes a vec of proportions and returns a vec of angles for those sizes
+// e.g. [1, 1] is 0, pi/2
+// [1, 2] is 0, 2pi/3
+// [1, 2, 1] is 0, 2pi/4, 3pi/4
+pub fn custom_angles(props: Vec<u32>) -> Vec<f64> {
   let pi = std::f64::consts::PI;
-  let partitions = 0..n;
-  let part_to_angle = |p| p as f64 * (pi / n as f64);
-  return partitions.into_iter().map(part_to_angle).collect();
+  let sections: u32 = props.iter().sum();
+  let prop_to_angle = |angles: Vec<f64>, prop: &u32| {
+    let angle = *prop as f64 * (pi / sections as f64);
+    let mut new_angles = angles.clone();
+    match angles.last() {
+      Some(a) => new_angles.push(angle + a),
+      None => new_angles.push(angle)
+    }
+    return new_angles;
+  };
+  return props.iter().fold([].to_vec(), prop_to_angle);
 }
 
 fn scaled_point(scale: u32, size: u32, point: u32) -> f64 {
@@ -29,7 +41,6 @@ fn scaled_point(scale: u32, size: u32, point: u32) -> f64 {
 }
 
 pub struct Params {
-  pub order: u32,
   pub scale: u32,
   pub width: u32,
   pub height: u32,
@@ -37,16 +48,15 @@ pub struct Params {
   pub y_offset: u32
 }
 
-pub fn gen<F: Fn(f64) -> Rgb<u8>>(colorize: F, phase: f64, params: &Params) -> RgbImage {
-  let Params { order, scale, width, height, x_offset, y_offset } = *params;
-  let angs = angles(order);
+pub fn gen<F: Fn(f64) -> Rgb<u8>>(colorize: F, phase: f64, angles: &Vec<f64>, params: &Params) -> RgbImage {
+  let Params { scale, width, height, x_offset, y_offset } = *params;
   let mut imgbuf = RgbImage::new(width, height);
   for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
     let max_dim = width.max(height);
     let scaled_x = scaled_point(scale, max_dim, x + x_offset);
     let scaled_y = scaled_point(scale, max_dim, y + y_offset);
     let part_wave = |rot: &f64| wave(*rot, phase, scaled_x, scaled_y);
-    let waves = angs.iter().map(part_wave);
+    let waves = angles.iter().map(part_wave);
     let stacked = combine(waves.collect());
     let clamped = (1 as f64).min(stacked.max(0 as f64));
     let shade = clamped * 255.0;

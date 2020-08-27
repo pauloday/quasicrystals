@@ -1,6 +1,6 @@
 [package]
 name = "quasicrystals"
-version = "0.1.0"
+version = "1.1"
 authors = ["ertdfgcb <odaypaul@gmail.com>"]
 edition = "2018"
 
