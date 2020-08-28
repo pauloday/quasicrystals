@@ -58,7 +58,7 @@ pub fn gen<F: Fn(f64) -> Rgb<u8>>(colorize: F, phase: f64, angles: &Vec<f64>, pa
     let part_wave = |rot: &f64| wave(*rot, phase, scaled_x, scaled_y);
     let waves = angles.iter().map(part_wave);
     let stacked = combine(waves.collect());
-    let clamped = (1 as f64).min(stacked.max(0 as f64));
+    let clamped = (1.0).min(stacked.max(0 as f64));
     let shade = clamped * 255.0;
     *pixel = colorize(shade);
   }

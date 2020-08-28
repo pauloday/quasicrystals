@@ -68,7 +68,6 @@ fn write_frames_thread(start: u32, end: u32, thread_num: u32) -> thread::JoinHan
   });
 }
 
-
 fn main() {
   let opts: Opts = Opts::parse();
   let frames = opts.frames;
@@ -80,7 +79,7 @@ fn main() {
   } else {
     let mut threads: Vec<thread::JoinHandle<_>> = Vec::new();
     for thread_num in 0..opts.threads { 
-      let frames_chunk = (frames as f32/ opts.threads as f32).ceil() as u32;
+      let frames_chunk = (frames as f32 / opts.threads as f32).ceil() as u32;
       let start = frames_chunk * thread_num;
       let end = frames_chunk * (thread_num + 1);
       if thread_num == opts.threads - 1 {
