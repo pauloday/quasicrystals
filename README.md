@@ -26,11 +26,11 @@ Then run it (this will generate the frames for the included gif example):
 Pass --help for full usage:
 ```
 $ quasicrystals --help
-quasicrystals 1.1
+quasicrystals 1.2
 Paul O'Day <https://github.com/ertdfgcb/quasicrystals>
 
 USAGE:
-    quasicrystals [OPTIONS] <width> <height> <angles> <scale>
+    quasicrystals [OPTIONS] <width> <height> <angles> <scale> <--grey <grey>|--saw <saw>>
 
 ARGS:
     <width>     Image width in pixels
@@ -45,9 +45,12 @@ FLAGS:
 
 OPTIONS:
     -f, --frames <frames>                Number of frames to generate [default: 1]
+        --grey <grey>                    Greyscale colorization, takes a brightness (0 = all black, 1 = all white)
     -i, --image-format <image-format>    Ouput format [default: jpg]
     -o, --output <output>                Output path [default: ./]
+        --saw <saw>                      Sawtooth colorization, takes r,g,b,s where rgb = offset on saw wave and s =
+                                         step (e.g. 0,0.25,0.5,51)
     -t, --threads <threads>              Number of threads to use [default: 1]
     -x, --x-offset <x-offset>            X viewport offset [default: 0]
-    -y, --y-offset <y-offset>            Y viewport offset [default: 0]k
+    -y, --y-offset <y-offset>            Y viewport offset [default: 0]
 ```
