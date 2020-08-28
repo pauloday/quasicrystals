@@ -66,6 +66,8 @@ fn get_colorizer() -> (color::Colorizer, String) {
   }
 }
 
+fn gen_frame()
+
 fn write_frames_thread(start: u32, end: u32, thread_num: u32) -> thread::JoinHandle<()> {
   return thread::spawn(move || {
     println!("spawned thread {} to write frames {} to {}", thread_num, start, end);
