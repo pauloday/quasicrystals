@@ -23,11 +23,11 @@ fn combine(waves: Vec<f64>) -> f64 {
 // e.g. [1, 1] is 0, pi/2
 // [1, 2] is 0, 2pi/3
 // [1, 2, 1] is 0, 2pi/4, 3pi/4
-pub fn custom_angles(props: Vec<u32>) -> Vec<f64> {
+pub fn custom_angles(props: Vec<f64>) -> Vec<f64> {
     let pi = std::f64::consts::PI;
-    let sections: u32 = props.iter().sum();
-    let prop_to_angle = |angles: Vec<f64>, prop: &u32| {
-        let angle = *prop as f64 * (pi / sections as f64);
+    let sections: f64 = props.iter().sum();
+    let prop_to_angle = |angles: Vec<f64>, prop: &f64| {
+        let angle = *prop as f64 * (pi / sections);
         let mut new_angles = angles.clone();
         match angles.last() {
             Some(a) => new_angles.push(angle + a),
