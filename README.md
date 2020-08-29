@@ -26,11 +26,11 @@ Then run it (this will generate the frames for the included gif example):
 Pass --help for full usage:
 ```
 $ quasicrystals --help
-quasicrystals 1.2
+quasicrystals 1.3
 Paul O'Day <https://github.com/ertdfgcb/quasicrystals>
 
 USAGE:
-    quasicrystals [OPTIONS] <width> <height> <angles> <scale> <--grey <grey>|--saw <saw>>
+    quasicrystals [OPTIONS] <width> <height> <angles> <scale>
 
 ARGS:
     <width>     Image width in pixels
@@ -44,12 +44,17 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+    -c, --colorizer <colorizer>...       Colorizer, one of:
+                                         - 'greyscale <brighness>'
+                                         greyscale colors, brightness 0 will make it all black and 255 will make it all
+                                         white. 127 is neutral
+                                         - 'sawtooth <r>,<g>,<b>,<s>'
+                                         use sawtooth waves to map a shade to color values. r,g,b are the offsets for
+                                         the wave for that color from 0-0.5 (after 0.5 it loops). s is a saturation
+                                         factor [default: sawtooth 0,0.25,0.5,51]
     -f, --frames <frames>                Number of frames to generate [default: 1]
-        --grey <grey>                    Greyscale colorization, takes a brightness (0 = all black, 1 = all white)
     -i, --image-format <image-format>    Ouput format [default: jpg]
     -o, --output <output>                Output path [default: ./]
-        --saw <saw>                      Sawtooth colorization, takes r,g,b,s where rgb = offset on saw wave and s =
-                                         step (e.g. 0,0.25,0.5,51)
     -t, --threads <threads>              Number of threads to use [default: 1]
     -x, --x-offset <x-offset>            X viewport offset [default: 0]
     -y, --y-offset <y-offset>            Y viewport offset [default: 0]

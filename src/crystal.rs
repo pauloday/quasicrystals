@@ -47,7 +47,7 @@ fn frame_phase(frame: u32, frames: u32) -> f64 {
     return ((2.0 * pi) / frames as f64) * frame as f64;
 }
 
-pub fn gen(colorizer: &impl Colorizer, f: &Frame) -> RgbImage {
+pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Frame) -> RgbImage {
     let mut imgbuf = RgbImage::new(f.width, f.height);
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
         let max_dim = f.width.max(f.height);

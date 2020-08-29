@@ -1,5 +1,5 @@
 // all the code for parsing a command line options object into frame/colorizers
-use crate::color::{Colorizer, Sawtooth};
+use crate::color::{Colorizer, Greyscale, Sawtooth};
 use crate::crystal::custom_angles;
 use crate::frame::Frame;
 use clap::Clap;
@@ -21,7 +21,11 @@ pub struct Opts {
     pub angles: String,
     #[clap(about = "Scaling factor, lower is more zoomed in")]
     pub scale: u32,
-    #[clap(short, long, about = "Colorizer", min_values = 2, default_values = &["sawtooth", "0,0.25,0.5,51"])]
+    #[clap(short, long, about = r"Colorizer, one of:
+- 'greyscale <brighness>'
+greyscale colors, brightness 0 will make it all black and 255 will make it all white. 127 is neutral
+- 'sawtooth <r>,<g>,<b>,<s>'
+use sawtooth waves to map a shade to color values. r,g,b are the offsets for the wave for that color from 0-0.5 (after 0.5 it loops). s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.25,0.5,51"])]
     pub colorizer: Vec<String>,
     #[clap(
         short,
@@ -75,25 +79,30 @@ pub fn get_frame(opts: &Opts, frame: u32) -> Frame {
     };
 }
 
-pub fn get_colorizer(opts: &Opts) -> impl Colorizer {
+pub fn get_colorizer(opts: &Opts) -> Box<dyn Colorizer> {
     let colorizer = &opts.colorizer[0];
     let params = parse_csl::<f64>(&opts.colorizer[1]);
     match &colorizer[..] {
         "sawtooth" => {
-            return Sawtooth {
+            return Box::new(Sawtooth {
                 red: params[0],
                 green: params[1],
                 blue: params[2],
                 scalar: params[3],
-            }
+            })
+        }
+        "greyscale" => {
+            return Box::new(Greyscale {
+                brightness: params[0],
+            })
         }
         _ => {
-            return Sawtooth {
-                red: params[0],
-                green: params[1],
-                blue: params[2],
-                scalar: params[3],
-            }
+            return Box::new(Sawtooth {
+                red: 0.0,
+                green: 0.25,
+                blue: 0.5,
+                scalar: 51.0,
+            })
         }
     }
 }

@@ -25,7 +25,13 @@ impl Colorizer for Sawtooth {
     }
 }
 
-fn grey_colorize(shade: f64, params: &Vec<f64>) -> Rgb<u8> {
-    let s = ((params[0] * 2.0) - 255.0 + shade) as u8;
-    return Rgb([s, s, s]);
+pub struct Greyscale {
+    pub brightness: f64,
+}
+
+impl Colorizer for Greyscale {
+    fn colorize(&self, shade: f64, _: u32, _: u32) -> Rgb<u8> {
+        let s = ((self.brightness * 2.0) - 255.0 + shade) as u8;
+        return Rgb([s, s, s]);
+    }
 }
