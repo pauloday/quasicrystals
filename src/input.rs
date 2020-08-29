@@ -17,8 +17,8 @@ pub struct Opts {
     pub height: u32,
     #[clap(about = "Proportional angles between waves (e.g. 1,2 -> 0°, 240°).\
         If only one number is given it will use that many waves evenly rotated.\
-        You can also add animation to them like '1,3-3,1-1,3';\
-        this will make an animation where the angles go from 1,3 to 3,1 and back to 1,3 smoothly")]
+        You can also add animation to them like '0-50-100,100-50-0';\
+        this will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0")]
     pub angles: String,
     #[clap(about = "Scaling factor, lower is more zoomed in")]
     pub scale: u32,
