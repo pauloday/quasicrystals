@@ -1,6 +1,6 @@
 // all the code for parsing a command line options object into frame/colorizers
 use crate::color::{Colorizer, Greyscale, Sawtooth};
-use crate::crystal::custom_angles;
+use crate::crystal::{percent_angles, proportion_angles};
 use crate::frame::Frame;
 use clap::Clap;
 use std::str::FromStr;
@@ -47,6 +47,8 @@ s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.2
     pub y_offset: u32,
     #[clap(short, long, about = "Number of threads to use", default_value = "1")]
     pub threads: u32,
+    #[clap(short, long, about = "Treat angles as percents (i.e. 0-100)")]
+    pub percent: bool,
 }
 
 fn parse_list<T>(params: &String, sep: char) -> Vec<T>
@@ -79,15 +81,18 @@ fn parse_animation(string: &String, frame: u32, frames: u32) -> f64 {
     return stages[0];
 }
 
-fn parse_angles(angles_string: &String, frame: u32, frames: u32) -> Vec<f64> {
+fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
     let angles: Vec<f64> = parse_list::<String>(angles_string, ',')
         .iter()
         .map(|a| parse_animation(&a, frame, frames))
         .collect();
-    if angles.len() == 1 {
-        return custom_angles(vec![1.0; angles[0] as usize]);
+    if percent {
+        return percent_angles(angles);
+    } else if angles.len() == 1{
+        return proportion_angles(vec![1.0; angles[0] as usize]);
+    } else {
+        return proportion_angles(angles);
     }
-    return custom_angles(angles);
 }
 
 pub fn get_frame(opts: &Opts, frame: u32) -> Frame {
@@ -99,7 +104,7 @@ pub fn get_frame(opts: &Opts, frame: u32) -> Frame {
         height: opts.height,
         x_offset: opts.x_offset,
         y_offset: opts.y_offset,
-        angles: parse_angles(&opts.angles, frame, opts.frames),
+        angles: parse_angles(&opts.angles, frame, opts.frames, opts.percent),
     };
 }
 

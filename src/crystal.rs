@@ -19,9 +19,26 @@ fn combine(waves: Vec<f64>) -> f64 {
     return 1.0 - wrapped;
 }
 
-// takes a vec of percents and returns a vec of angles for those sizes
-// e.g. [0, 50] is 0, 180 
-pub fn custom_angles(props: Vec<f64>) -> Vec<f64> {
+// takes a vec of proportions and returns a vec of angles for those sizes
+// e.g. [1, 1] is 0, pi/2
+// [1, 2] is 0, 2pi/3
+// [1, 2, 1] is 0, 2pi/4, 3pi/4
+pub fn proportion_angles(props: Vec<f64>) -> Vec<f64> {
+    let pi = std::f64::consts::PI;
+    let sections: f64 = props.iter().sum();
+    let prop_to_angle = |angles: Vec<f64>, prop: &f64| {
+        let angle = *prop as f64 * (pi / sections);
+        let mut new_angles = angles.clone();
+        match angles.last() {
+            Some(a) => new_angles.push(angle + a),
+            None => new_angles.push(angle),
+        }
+        return new_angles;
+    };
+    return props.iter().fold([].to_vec(), prop_to_angle);
+}
+
+pub fn percent_angles(props: Vec<f64>) -> Vec<f64> {
     let pi = std::f64::consts::PI;
     return props.iter().map(|p| p / 100 as f64 * pi).collect();
 }
