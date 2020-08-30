@@ -65,8 +65,24 @@ where
         .collect();
 }
 
+enum NumberType {
+    PROPORTIONAL,
+    FRACTION,
+}
+
+fn parse_number(num_string: &String) -> (f64, NumberType) {
+    if num_string.contains("%") {
+        return (num_string.parse::<f64>().unwrap(), NumberType::FRACTION);
+    } else if num_string.contains("/") {
+        let parts: Vec<f64> = num_string.split("/").map(|s| s.parse::<f64>().unwrap()).collect();
+        return (parts[0] / parts[1], NumberType::FRACTION);
+    } else {
+        return (num_string.parse::<f64>().unwrap(), NumberType::PROPORTIONAL);
+    }
+}
+
 fn parse_animation(string: &String, frame: u32, frames: u32) -> f64 {
-    let stages: Vec<f64> = parse_list::<f64>(string, '-');
+    let stages: Vec<(f64, NumberType)> = parse_list::<String>(string, '-').iter().map(|s| parse_number(s)).collect();
     if string.contains("-") {
         // first we find # frames per stage transition
         let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
