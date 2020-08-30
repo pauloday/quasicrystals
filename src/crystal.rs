@@ -47,9 +47,9 @@ fn scaled_point(scale: u32, size: u32, point: u32) -> f64 {
     return scale as f64 * ((2.0 * point as f64 / (size as f64 - 1.0)) - 1.0);
 }
 
-fn frame_phase(frame: u32, frames: u32) -> f64 {
+fn frame_phase(frame: u32, frames: u32, phases: f64) -> f64 {
     let pi = std::f64::consts::PI;
-    return ((2.0 * pi) / frames as f64) * frame as f64;
+    return ((2.0 * pi) / frames as f64) * frame as f64 * phases;
 }
 
 pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Frame) -> RgbImage {
@@ -58,7 +58,7 @@ pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Frame) -> RgbImage {
         let max_dim = f.width.max(f.height);
         let scaled_x = scaled_point(f.scale, max_dim, x + f.x_offset);
         let scaled_y = scaled_point(f.scale, max_dim, y + f.y_offset);
-        let phase = frame_phase(f.frame, f.frames);
+        let phase = frame_phase(f.frame, f.frames, f.phases);
         let part_wave = |rot: &f64| wave(*rot, phase, scaled_x, scaled_y);
         let waves = f.angles.iter().map(part_wave);
         let stacked = combine(waves.collect());

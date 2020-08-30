@@ -5,6 +5,7 @@ the colorizer will take this object as well
 it's kind of an orphan right now, I can't think of anything else to put in this module
 */
 pub struct Frame {
+    pub phases: f64,
     pub frame: u32,
     pub frames: u32,
     pub scale: u32,
