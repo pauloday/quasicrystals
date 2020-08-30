@@ -1,8 +1,8 @@
 extern crate image;
 
 use crate::color::Colorizer;
-use crate::frame::Frame;
-use image::RgbImage;
+use crate::output::Image;
+use image::RgbaImage;
 
 fn wave(rot: f64, phase: f64, x: f64, y: f64) -> f64 {
     let (srot, crot) = rot.sin_cos();
@@ -52,8 +52,8 @@ fn frame_phase(frame: u32, frames: u32, phases: f64) -> f64 {
     return ((2.0 * pi) / frames as f64) * frame as f64 * phases;
 }
 
-pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Frame) -> RgbImage {
-    let mut imgbuf = RgbImage::new(f.width, f.height);
+pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Image) -> RgbaImage {
+    let mut imgbuf = RgbaImage::new(f.width, f.height);
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
         let max_dim = f.width.max(f.height);
         let scaled_x = scaled_point(f.scale, max_dim, x + f.x_offset);

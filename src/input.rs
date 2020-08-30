@@ -1,7 +1,7 @@
 // all the code for parsing a command line options object into frame/colorizers
 use crate::color::{Colorizer, Greyscale, Sawtooth};
 use crate::crystal::{percent_angles, proportion_angles};
-use crate::frame::Frame;
+use crate::output::Image;
 use clap::Clap;
 use std::str::FromStr;
 
@@ -37,7 +37,7 @@ s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.2
         default_value = "1"
     )]
     pub frames: u32,
-    #[clap(short, long, about = "Output path", default_value = "./")]
+    #[clap(short, long, about = "Output path, if gif is used this must be called with the filename", default_value = "./")]
     pub output: String,
     #[clap(short, long, about = "Ouput format", default_value = "jpg")]
     pub image_format: String,
@@ -49,7 +49,7 @@ s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.2
     pub threads: u32,
     #[clap(short, long, about = "Treat angles as percents (i.e. 0-100)")]
     pub percent: bool,
-    #[clap(long, about = "Number of phases waves go through")]
+    #[clap(long, about = "Number of phases waves go through", default_value = "1")]
     pub phases: f64,
 }
 
@@ -97,9 +97,8 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
     }
 }
 
-pub fn get_frame(opts: &Opts, frame: u32) -> Frame {
-    println!("{}", opts.phases);
-    return Frame {
+pub fn parse_image(opts: &Opts, frame: u32) -> Image {
+    return Image {
         phases: opts.phases,
         frame: frame,
         frames: opts.frames,
