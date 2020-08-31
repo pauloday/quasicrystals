@@ -16,8 +16,9 @@ pub struct Opts {
     #[clap(about = "Image height in pixels")]
     pub height: u32,
     #[clap(about = "Proportional angles between waves (e.g. 1,2 -> 0°, 240°).\
+        With the -p flag, the angles will be percents (either 50 or 1/2).
         If only one number is given it will use that many waves evenly rotated.\
-        You can also add animation to them like '0-50-100,100-50-0';\
+        You can also add animation to them like '0-5-10`,10-5-0';\
         this will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0")]
     pub angles: String,
     #[clap(about = "Scaling factor, lower is more zoomed in")]
@@ -37,7 +38,12 @@ s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.2
         default_value = "1"
     )]
     pub frames: u32,
-    #[clap(short, long, about = "Output path, if gif is used this must be called with the filename", default_value = "./")]
+    #[clap(
+        short,
+        long,
+        about = "Output path, if gif is used this must be called with the filename",
+        default_value = "./"
+    )]
     pub output: String,
     #[clap(short, long, about = "Ouput format", default_value = "jpg")]
     pub image_format: String,
@@ -47,10 +53,10 @@ s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.2
     pub y_offset: u32,
     #[clap(short, long, about = "Number of threads to use", default_value = "1")]
     pub threads: u32,
-    #[clap(short, long, about = "Treat angles as percents (i.e. 0-100)")]
+    #[clap(short, long, about = "Treat angles as percents (i.e. 0-100). Fractions can also be used (i.e. 1/6)")]
     pub percent: bool,
-    #[clap(long, about = "Number of phases waves go through", default_value = "1")]
-    pub phases: f64,
+    #[clap(short, long, about = "Number of phases waves go through", default_value = "1")]
+    pub speed: f64,
 }
 
 fn parse_list<T>(params: &String, sep: char) -> Vec<T>
@@ -65,35 +71,38 @@ where
         .collect();
 }
 
-enum NumberType {
-    PROPORTIONAL,
-    FRACTION,
-}
-
-fn parse_number(num_string: &String) -> (f64, NumberType) {
-    if num_string.contains("%") {
-        return (num_string.parse::<f64>().unwrap(), NumberType::FRACTION);
-    } else if num_string.contains("/") {
-        let parts: Vec<f64> = num_string.split("/").map(|s| s.parse::<f64>().unwrap()).collect();
-        return (parts[0] / parts[1], NumberType::FRACTION);
+fn parse_number(num_string: &String) -> f64 {
+    if num_string.contains("/") {
+        let parts: Vec<f64> = num_string
+            .split("/")
+            .map(|s| s.parse::<f64>().unwrap())
+            .collect();
+        return (parts[0] / parts[1]) * 100.0;
     } else {
-        return (num_string.parse::<f64>().unwrap(), NumberType::PROPORTIONAL);
+        return num_string.parse::<f64>().unwrap();
     }
 }
 
 fn parse_animation(string: &String, frame: u32, frames: u32) -> f64 {
-    let stages: Vec<(f64, NumberType)> = parse_list::<String>(string, '-').iter().map(|s| parse_number(s)).collect();
+    let stages: Vec<f64> = parse_list::<String>(string, '-')
+        .iter()
+        .map(|s| parse_number(s))
+        .collect();
     if string.contains("-") {
         // first we find # frames per stage transition
         let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
         // then we find the stage we're transitioning from
-        let from_stage = stages.get((frame as f64 / trans_frames).floor() as usize).unwrap();
+        let from_stage = stages
+            .get((frame as f64 / trans_frames).floor() as usize)
+            .unwrap();
         // and the one we're going to
-        let to_stage = stages.get((frame as f64 / trans_frames).ceil() as usize).unwrap();
+        let to_stage = stages
+            .get((frame as f64 / trans_frames).ceil() as usize)
+            .unwrap();
         // then we figure out what percent through the transition we are
         let trans_prog = (frame as f64 % trans_frames) / trans_frames;
         // finally we can calculate the transitionary value
-        let ret =  (trans_prog * (to_stage  - from_stage)) + from_stage;
+        let ret = (trans_prog * (to_stage - from_stage)) + from_stage;
         return ret;
     }
     return stages[0];
@@ -106,7 +115,7 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
         .collect();
     if percent {
         return percent_angles(angles);
-    } else if angles.len() == 1{
+    } else if angles.len() == 1 {
         return proportion_angles(vec![1.0; angles[0] as usize]);
     } else {
         return proportion_angles(angles);
@@ -115,7 +124,7 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
 
 pub fn parse_image(opts: &Opts, frame: u32) -> Image {
     return Image {
-        phases: opts.phases,
+        phases: opts.speed,
         frame: frame,
         frames: opts.frames,
         scale: opts.scale,

@@ -2,8 +2,8 @@ use clap::Clap;
 use std::thread;
 mod color;
 mod crystal;
-mod output;
 mod input;
+mod output;
 
 fn main() {
     let opts: input::Opts = input::Opts::parse();
