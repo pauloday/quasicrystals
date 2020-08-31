@@ -1,7 +1,7 @@
-use image::Rgb;
+use image::Rgba;
 
 pub trait Colorizer {
-    fn colorize(&self, shade: f64, frame: u32, frames: u32) -> Rgb<u8>;
+    fn colorize(&self, shade: f64, frame: u32, frames: u32) -> Rgba<u8>;
 }
 
 pub struct Sawtooth {
@@ -12,7 +12,7 @@ pub struct Sawtooth {
 }
 
 impl Colorizer for Sawtooth {
-    fn colorize(&self, shade: f64, frame: u32, frames: u32) -> Rgb<u8> {
+    fn colorize(&self, shade: f64, frame: u32, frames: u32) -> Rgba<u8> {
         let c = |offset: f64| {
             let pi = std::f64::consts::PI;
             let adjusted_frame = offset + (frame as f64 / frames as f64);
@@ -20,8 +20,8 @@ impl Colorizer for Sawtooth {
             let sawtooth = (self.scalar * pi * (frame_pi.sin()).asin()).abs();
             return (shade - sawtooth).abs() as u8;
         };
-        let rgb: [u8; 3] = [c(self.red), c(self.green), c(self.blue)];
-        return Rgb(rgb);
+        let rgb: [u8; 4] = [c(self.red), c(self.green), c(self.blue), 1];
+        return Rgba(rgb);
     }
 }
 
@@ -30,8 +30,8 @@ pub struct Greyscale {
 }
 
 impl Colorizer for Greyscale {
-    fn colorize(&self, shade: f64, _: u32, _: u32) -> Rgb<u8> {
+    fn colorize(&self, shade: f64, _: u32, _: u32) -> Rgba<u8> {
         let s = ((self.brightness * 2.0) - 255.0 + shade) as u8;
-        return Rgb([s, s, s]);
+        return Rgba([s, s, s, 1]);
     }
 }
