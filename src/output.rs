@@ -1,7 +1,6 @@
 use crate::crystal;
 use crate::input;
 use clap::Clap;
-use image::error::ImageResult;
 use image::gif::Encoder;
 use image::Frame;
 use std::fs::File;

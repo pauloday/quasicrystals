@@ -56,7 +56,7 @@ s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.2
     #[clap(short, long, about = "Treat angles as percents (i.e. 0-100). Fractions can also be used (i.e. 1/6)")]
     pub percent: bool,
     #[clap(short, long, about = "Number of phases waves go through", default_value = "1")]
-    pub speed: f64,
+    pub speed: String,
 }
 
 fn parse_list<T>(params: &String, sep: char) -> Vec<T>
@@ -124,7 +124,7 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
 
 pub fn parse_image(opts: &Opts, frame: u32) -> Image {
     return Image {
-        phases: opts.speed,
+        phases: parse_animation(&opts.speed, frame, opts.frames),
         frame: frame,
         frames: opts.frames,
         scale: opts.scale,
