@@ -53,7 +53,7 @@ pub fn write_frames_thread(start: u32, end: u32, thread_num: u32) -> thread::Joi
             println!("thread {}: rendered image {:?}", thread_num, f);
         }
         if opts.image_format == "gif" {
-            println!("writing gif...");
+            println!("writing gif (very slowly)...");
             let file_out = match File::create(opts.output) {
                 Ok(file) => file,
                 Err(e) => panic!(e),

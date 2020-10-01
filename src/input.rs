@@ -1,5 +1,5 @@
 // all the code for parsing a command line options object into frame/colorizers
-use crate::color::{Colorizer, Greyscale, Sawtooth};
+use crate::color::{Colorizer, Greyscale, Sawtooth, TwoTone};
 use crate::crystal::{percent_angles, proportion_angles};
 use crate::output::Image;
 use clap::Clap;
@@ -29,7 +29,10 @@ greyscale colors, brightness 0 will make it all black and 255 will make it all w
 - 'sawtooth <r>,<g>,<b>,<s>'
 use sawtooth waves to map a shade to color values.\
 r,g,b are the offsets for the wave for that color from 0-0.5 (after 0.5 it loops).\
-s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.25,0.5,51"])]
+s is a saturation factor\
+- 'twotone <r1>,<g1>,<b1>,<r2>,<g2>,<b2>'
+map the shade to a color space between rgb1 and rgb2
+", min_values = 2, default_values = &["sawtooth", "0,0.25,0.5,51"])]
     pub colorizer: Vec<String>,
     #[clap(
         short,
@@ -151,6 +154,16 @@ pub fn get_colorizer(opts: &Opts) -> Box<dyn Colorizer> {
         "greyscale" => {
             return Box::new(Greyscale {
                 brightness: params[0],
+            })
+        }
+        "twotone" => {
+            return Box::new(TwoTone {
+                red1: params[0],
+                green1: params[1],
+                blue1: params[2],
+                red2: params[3],
+                green2: params[4],
+                blue2: params[5],
             })
         }
         _ => {
