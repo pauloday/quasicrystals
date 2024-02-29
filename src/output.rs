@@ -1,7 +1,7 @@
 use crate::crystal;
 use crate::input;
 use clap::Clap;
-use image::error::ImageResult;
+
 use image::gif::Encoder;
 use image::Frame;
 use std::fs::File;
@@ -57,12 +57,12 @@ pub fn write_frames_thread(start: u32, end: u32, thread_num: u32) -> thread::Joi
             println!("writing gif...");
             let file_out = match File::create(opts.output) {
                 Ok(file) => file,
-                Err(e) => panic!(e),
+                Err(e) => std::panic::panic_any(e),
             };
             let mut encoder = Encoder::new(file_out);
             match encoder.encode_frames(frames.into_iter()) {
                 Ok(_) => println!("wrote gif"),
-                Err(e) => panic!(e),
+                Err(e) => std::panic::panic_any(e),
             };
         }
     });
