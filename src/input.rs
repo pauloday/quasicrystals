@@ -1,7 +1,7 @@
 // all the code for parsing a command line options object into frame/colorizers
 use crate::color::{Colorizer, Greyscale, Sawtooth};
 use crate::crystal::{percent_angles, proportion_angles};
-use crate::output::Image;
+use crate::Image;
 use clap::Clap;
 use std::str::FromStr;
 

@@ -1,7 +1,7 @@
 extern crate image;
 
 use crate::color::Colorizer;
-use crate::output::Image;
+use crate::Image;
 use image::RgbaImage;
 
 fn wave(rot: f64, phase: f64, x: f64, y: f64) -> f64 {
