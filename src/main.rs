@@ -43,10 +43,12 @@ fn gen_frames_thread(start: u32,
                      verbose: bool)
     -> thread::JoinHandle<()> {
     return thread::spawn(move || {
-        println!(
-            "Spawned thread {} to write frames {} to {}",
-            thread_num, start, end
-        );
+        if verbose {
+            println!(
+                "Spawned thread {} to write frames {} to {}",
+                thread_num, start, end
+            );
+        }
         let opts: input::Opts = input::Opts::parse();
         let colorizer = input::get_colorizer(&opts);
         for f in start..end {
@@ -110,8 +112,8 @@ fn main() {
         }
     }
     println!(
-        "Writing {} frames at {}x{} with angles {} and scale {}",
-        frames, opts.width, opts.height, opts.angles, opts.scale
+        "Generating {} frames at {}x{} with angles {} and scale {} using {} threads",
+        frames, opts.width, opts.height, opts.angles, opts.scale, opts.threads
     );
     if frames < opts.threads {
         let frame_thread = gen_frames_thread(
@@ -139,7 +141,7 @@ fn main() {
         while let Ok(result) = receiver.try_recv() {
             opt_frames[result.number as usize] = Some(result.frame);
         }
-        if opts.image_format == "gif" {
+        if opts.image_format == "gif" || opts.output.ends_with(".gif") {
             output::write_gif(opts.output, opt_frames, opts.allow_overwrite);
         } else {
            output::write_frames(
