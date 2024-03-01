@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use std::f64::consts::PI;
 use crate::Image;
 use crate::input::Opts;
 use crate::color::Colorizer;
@@ -34,10 +35,9 @@ fn parse_number(num_string: &String) -> f64 {
 // [1, 2] is 0, 2pi/3
 // [1, 2, 1] is 0, 2pi/4, 3pi/4
 fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
-    let pi = std::f64::consts::PI;
     let sections: f64 = props.iter().sum();
     let prop_to_angle = |angles: Vec<f64>, prop: &f64| {
-        let angle = *prop as f64 * (pi / sections);
+        let angle = *prop as f64 * (PI / sections);
         let mut new_angles = angles.clone();
         match angles.last() {
             Some(a) => new_angles.push(angle + a),
@@ -49,8 +49,7 @@ fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
 }
 
 fn parse_percents(props: Vec<f64>) -> Vec<f64> {
-    let pi = std::f64::consts::PI;
-    return props.iter().map(|p| p * pi).collect();
+    return props.iter().map(|p| p * PI).collect();
 }
 
 fn parse_animation(string: &String, frame: u32, frames: u32) -> f64 {
