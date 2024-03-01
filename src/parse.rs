@@ -33,7 +33,7 @@ fn parse_number(num_string: &String) -> f64 {
 // e.g. [1, 1] is 0, pi/2
 // [1, 2] is 0, 2pi/3
 // [1, 2, 1] is 0, 2pi/4, 3pi/4
-pub fn proportion_angles(props: Vec<f64>) -> Vec<f64> {
+fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
     let pi = std::f64::consts::PI;
     let sections: f64 = props.iter().sum();
     let prop_to_angle = |angles: Vec<f64>, prop: &f64| {
@@ -48,7 +48,7 @@ pub fn proportion_angles(props: Vec<f64>) -> Vec<f64> {
     return props.iter().fold([].to_vec(), prop_to_angle);
 }
 
-pub fn percent_angles(props: Vec<f64>) -> Vec<f64> {
+fn parse_percents(props: Vec<f64>) -> Vec<f64> {
     let pi = std::f64::consts::PI;
     return props.iter().map(|p| p / 100 as f64 * pi).collect();
 }
@@ -84,11 +84,11 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
         .map(|a| parse_animation(&a, frame, frames))
         .collect();
     if percent {
-        return percent_angles(angles);
+        return parse_percents(angles);
     } else if angles.len() == 1 {
-        return proportion_angles(vec![1.0; angles[0] as usize]);
+        return parse_proportions(vec![1.0; angles[0] as usize]);
     } else {
-        return proportion_angles(angles);
+        return parse_proportions(angles);
     }
 }
 
