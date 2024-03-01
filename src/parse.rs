@@ -6,19 +6,7 @@ use crate::color::Colorizer;
 use crate::color::Greyscale;
 use crate::color::Sawtooth;
 
-fn parse_list<T>(params: &String, sep: char) -> Vec<T>
-where
-    T: FromStr,
-    T::Err: std::fmt::Debug,
-{
-    let param_strings: Vec<&str> = (*params.split(sep).collect::<Vec<&str>>()).to_vec();
-    return param_strings
-        .iter()
-        .map(|s| s.parse::<T>().unwrap())
-        .collect();
-}
-
-fn parse_number(num_string: &String) -> f64 {
+fn parse_number(num_string: &str) -> f64 {
     if num_string.contains("/") {
         let parts: Vec<f64> = num_string
             .split("/")
@@ -40,11 +28,11 @@ fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
     return parse_percents(percents);
 }
 
-fn parse_animation(string: &String, frame: u32, frames: u32) -> f64 {
-    let stages: Vec<f64> = parse_list::<String>(string, '-')
-        .iter()
+fn parse_animation(string: &str, frame: u32, frames: u32) -> f64 {
+    let stages: Vec<f64> = (*string.split('-')
         .map(|s| parse_number(s))
-        .collect();
+        .collect::<Vec<f64>>()).to_vec();
+    // if string with no dash is passed, we can skip the animation parsing
     if string.contains("-") {
         // first we find # frames per stage transition
         let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
@@ -66,10 +54,9 @@ fn parse_animation(string: &String, frame: u32, frames: u32) -> f64 {
 }
 
 fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
-    let angles: Vec<f64> = parse_list::<String>(angles_string, ',')
-        .iter()
-        .map(|a| parse_animation(&a, frame, frames))
-        .collect();
+    let angles: Vec<f64> = (*angles_string.split(',')
+        .map(|a| parse_animation(a, frame, frames))
+        .collect::<Vec<f64>>()).to_vec();
     if percent {
         return parse_percents(angles);
     } else if angles.len() == 1 {
@@ -95,7 +82,9 @@ pub fn parse_image(opts: &Opts, frame: u32) -> Image {
 
 pub fn parse_colorizer(opts: &Opts) -> Box<dyn Colorizer> {
     let colorizer = &opts.colorizer[0];
-    let params = parse_list::<f64>(&opts.colorizer[1], ',');
+    let params = (&opts.colorizer[1].split(',')
+                  .map(|s| s.parse::<f64>().unwrap())
+                 .collect::<Vec<f64>>()).to_vec();
     match &colorizer[..] {
         "sawtooth" => {
             return Box::new(Sawtooth {
