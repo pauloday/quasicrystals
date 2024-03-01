@@ -2,61 +2,79 @@
 use crate::color::{Colorizer, Greyscale, Sawtooth};
 use crate::crystal::{percent_angles, proportion_angles};
 use crate::Image;
-use clap::Clap;
+use clap::Parser;
 use std::str::FromStr;
 
-#[derive(Clap)]
-#[clap(
-    version = "1.3",
+#[derive(Parser, Debug)]
+#[command(
+    version = "1.6",
     author = "Paul O'Day <https://github.com/ertdfgcb/quasicrystals>"
 )]
 pub struct Opts {
-    #[clap(about = "Image width in pixels")]
+    #[arg(help = "Image width in pixels")]
     pub width: u32,
-    #[clap(about = "Image height in pixels")]
+
+    #[arg(help = "Image height in pixels")]
     pub height: u32,
-    #[clap(about = "Proportional angles between waves (e.g. 1,2 -> 0°, 240°).\
+
+    #[arg(help = "Proportional angles between waves (e.g. 1,2 -> 0°, 240°).\
         With the -p flag, the angles will be percents (either 50 or 1/2).
         If only one number is given it will use that many waves evenly rotated.\
         You can also add animation to them like '0-5-10`,10-5-0';\
         this will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0")]
     pub angles: String,
-    #[clap(about = "Scaling factor, lower is more zoomed in")]
+
+    #[arg(help = "Scaling factor, lower is more zoomed in")]
     pub scale: u32,
-    #[clap(short, long, long_about = r"Colorizer, one of:
+
+    #[arg(short, long, long_help = r"Colorizer, one of:
 - 'greyscale <brighness>'
 greyscale colors, brightness 0 will make it all black and 255 will make it all white. 127 is neutral
 - 'sawtooth <r>,<g>,<b>,<s>'
 use sawtooth waves to map a shade to color values.\
 r,g,b are the offsets for the wave for that color from 0-0.5 (after 0.5 it loops).\
-s is a saturation factor", min_values = 2, default_values = &["sawtooth", "0,0.25,0.5,51"])]
+s is a saturation factor", default_values = &["sawtooth", "0,0.25,0.5,51"])]
     pub colorizer: Vec<String>,
-    #[clap(
+
+    #[arg(
         short,
         long,
-        about = "Number of frames to generate",
+        help = "Number of frames to generate",
         default_value = "1"
     )]
     pub frames: u32,
-    #[clap(
+
+    #[arg(
         short,
         long,
-        about = "Output path, if gif is used this must be called with the filename",
+        help = "Output path, if gif is used this must be called with the filename",
         default_value = "./"
     )]
     pub output: String,
-    #[clap(short, long, about = "Ouput format", default_value = "jpg")]
+
+    #[arg(short, long, help = "Allow overwriting of existing images", default_value = "false")]
+    pub allow_overwrite: bool,
+
+    #[arg(short, long, help = "Ouput format, if gif is used you must pass an argument to output for the filename of the gif", default_value = "jpg")]
     pub image_format: String,
-    #[clap(short, long, about = "X viewport offset", default_value = "0")]
+
+    #[arg(short, long, help = "X viewport offset", default_value = "0")]
     pub x_offset: u32,
-    #[clap(short, long, about = "Y viewport offset", default_value = "0")]
+
+    #[arg(short, long, help = "Y viewport offset", default_value = "0")]
     pub y_offset: u32,
-    #[clap(short, long, about = "Number of threads to use", default_value = "1")]
+
+    #[arg(short, long, help = "Number of threads to use", default_value = "1")]
     pub threads: u32,
-    #[clap(short, long, about = "Treat angles as percents (i.e. 0-100). Fractions can also be used (i.e. 1/6)")]
+
+    #[arg(short, long, help = "Treat angles as percents (i.e. 0-100). Fractions can also be used (i.e. 1/6)")]
     pub percent: bool,
-    #[clap(short, long, about = "Number of phases waves go through", default_value = "1")]
+
+    #[arg(short, long, help = "Number of phases waves go through, controls the speed of animation", default_value = "1")]
     pub speed: f64,
+
+    #[arg(short, long, help = "Print additional information while generating", default_value = "false")]
+    pub verbose: bool,
 }
 
 fn parse_list<T>(params: &String, sep: char) -> Vec<T>
