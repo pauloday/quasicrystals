@@ -4,11 +4,14 @@ use std::sync::mpsc::Sender;
 use std::path::Path;
 use image::RgbaImage;
 use clap::Parser;
+use crate::parse::{parse_image, parse_colorizer};
+use crate::input::Opts;
 
 mod color;
 mod crystal;
 mod input;
 mod output;
+mod parse;
 
 /*
 this defines a frame without colorization
@@ -49,10 +52,10 @@ fn gen_frames_thread(start: u32,
                 thread_num, start, end
             );
         }
-        let opts: input::Opts = input::Opts::parse();
-        let colorizer = input::get_colorizer(&opts);
+        let opts: Opts = input::Opts::parse();
+        let colorizer = parse_colorizer(&opts);
         for f in start..end {
-            let frame = input::parse_image(&opts, f);
+            let frame = parse_image(&opts, f);
             let frame_image = crystal::gen(&colorizer, &frame);
             let out_frame = OutFrame {
                 frame: frame_image,
