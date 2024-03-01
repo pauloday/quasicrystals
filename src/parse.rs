@@ -23,9 +23,9 @@ fn parse_number(num_string: &String) -> f64 {
             .split("/")
             .map(|s| s.parse::<f64>().unwrap())
             .collect();
-        return (parts[0] / parts[1]) * 100.0;
+        return parts[0] / parts[1];
     } else {
-        return num_string.parse::<f64>().unwrap();
+        return num_string.parse::<f64>().unwrap() / 100.0;
     }
 }
 
@@ -50,7 +50,7 @@ fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
 
 fn parse_percents(props: Vec<f64>) -> Vec<f64> {
     let pi = std::f64::consts::PI;
-    return props.iter().map(|p| p / 100 as f64 * pi).collect();
+    return props.iter().map(|p| p * pi).collect();
 }
 
 fn parse_animation(string: &String, frame: u32, frames: u32) -> f64 {
