@@ -30,26 +30,14 @@ fn parse_number(num_string: &String) -> f64 {
     }
 }
 
-// takes a vec of proportions and returns a vec of angles for those sizes
-// e.g. [1, 1] is 0, pi/2
-// [1, 2] is 0, 2pi/3
-// [1, 2, 1] is 0, 2pi/4, 3pi/4
-fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
-    let sections: f64 = props.iter().sum();
-    let prop_to_angle = |angles: Vec<f64>, prop: &f64| {
-        let angle = *prop as f64 * (PI / sections);
-        let mut new_angles = angles.clone();
-        match angles.last() {
-            Some(a) => new_angles.push(angle + a),
-            None => new_angles.push(angle),
-        }
-        return new_angles;
-    };
-    return props.iter().fold([].to_vec(), prop_to_angle);
-}
-
 fn parse_percents(props: Vec<f64>) -> Vec<f64> {
     return props.iter().map(|p| p * PI).collect();
+}
+
+fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
+    let denominator: f64 = props.iter().sum();
+    let percents = props.iter().map(|p| p / denominator).collect();
+    return parse_percents(percents);
 }
 
 fn parse_animation(string: &String, frame: u32, frames: u32) -> f64 {
