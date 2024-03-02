@@ -17,10 +17,6 @@ fn parse_number(num_string: &str) -> f64 {
     }
 }
 
-fn parse_percents(props: Vec<f64>) -> Vec<f64> {
-    return props.iter().map(|p| p * PI).collect();
-}
-
 // to convert an angle of rotation for a proportion:
 // - split circle into S even sections
 // - for each prop, sum it with all the props before for # of S to the end of that prop
@@ -73,7 +69,7 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
         .map(|a| parse_angle(a, frame, frames))
         .collect::<Vec<f64>>()).to_vec();
     if percent {
-        return parse_percents(angles);
+        return angles.iter().map(|p| p * PI).collect();
     } else {
         return parse_proportions(angles);
     }
