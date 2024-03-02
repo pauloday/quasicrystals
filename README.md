@@ -19,7 +19,7 @@ First, compile it:
 
 Then run it (this will generate the frames for the included gif example):
 
-`./target/release/quasicrystals 200 200 6 32 -f 30`
+`./target/release/quasicrystals 200 200 7 32 -f 30 -o ./crystal.gif`
 
 Pass --help for full usage:
 ```
