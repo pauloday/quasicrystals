@@ -101,7 +101,7 @@ fn main() {
         let frame_thread = gen_frames_thread(
             frames,
             num_threads,
-            1,
+            0,
             sender.clone(),
             opts.verbose
         );
@@ -120,19 +120,19 @@ fn main() {
         for thread in threads {
             thread.join().unwrap();
         }
-        while let Ok(result) = receiver.try_recv() {
-            opt_frames[result.number as usize] = Some(result.frame);
-        }
-        if opts.image_format == "gif" || opts.output.ends_with(".gif") {
-            output::write_gif(opts.output, opt_frames, opts.allow_overwrite);
-        } else {
-           output::write_frames(
-               opts.image_format,
-               opt_frames,
-               opts.output.clone(),
-               opts.verbose,
-               opts.allow_overwrite
-            );
-        }
+    }
+    while let Ok(result) = receiver.try_recv() {
+        opt_frames[result.number as usize] = Some(result.frame);
+    }
+    if opts.image_format == "gif" || opts.output.ends_with(".gif") {
+        output::write_gif(opts.output, opt_frames, opts.allow_overwrite);
+    } else {
+       output::write_frames(
+           opts.image_format,
+           opt_frames,
+           opts.output.clone(),
+           opts.verbose,
+           opts.allow_overwrite
+        );
     }
 }
