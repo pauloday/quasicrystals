@@ -26,15 +26,13 @@ fn parse_percents(props: Vec<f64>) -> Vec<f64> {
 // - for each prop, sum it with all the props before for # of S to the end of that prop
 // - multiply # of S by 2pi for angle in rads
 fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
-    let sects: f64 = props.iter().sum();
-    let circle_sects = PI / sects;
+    let circle_sects = PI / props.iter().sum();
     let mut sums = vec![props[0]];
     for p in &props[1..] {
         let sum_to_p = *p + sums.last().unwrap();
         sums.push(sum_to_p);
     }
     let r = sums.iter().map(|s| s * circle_sects).collect();
-    println!("{:?}, {:?}", r, sums);
     return r;
 }
 
