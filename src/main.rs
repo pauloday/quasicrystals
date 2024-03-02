@@ -102,6 +102,11 @@ fn spawn_thread(frames: u32,
 fn main() {
     let opts: input::Opts = input::Opts::parse();
     let frames = opts.frames;
+    let num_threads = if frames < opts.threads {
+        frames
+    } else {
+        opts.threads
+    };
     let (sender, receiver) = channel();
     let mut opt_frames: Vec<Option<RgbaImage>> = vec![None; frames as usize];
     if opts.image_format == "gif" { 
@@ -116,9 +121,9 @@ fn main() {
     }
     println!(
         "Generating {} frames at {}x{} with angles {} and scale {} using {} threads",
-        frames, opts.width, opts.height, opts.angles, opts.scale, opts.threads
+        frames, opts.width, opts.height, opts.angles, opts.scale, num_threads
     );
-    if frames < opts.threads {
+    if frames == 1 || num_threads == 1 {
         let frame_thread = gen_frames_thread(
             0,
             frames,
@@ -129,10 +134,10 @@ fn main() {
         frame_thread.join().unwrap();
     } else {
         let mut threads: Vec<thread::JoinHandle<_>> = Vec::new();
-        for thread_num in 0..opts.threads {
+        for thread_num in 0..num_threads {
             threads.push(spawn_thread(
                     frames,
-                    opts.threads,
+                    num_threads,
                     thread_num,
                     sender.clone(),
                     opts.verbose

@@ -1,3 +1,4 @@
+use std::f64::consts::PI;
 use image::Rgba;
 
 pub trait Colorizer {
@@ -14,10 +15,9 @@ pub struct Sawtooth {
 impl Colorizer for Sawtooth {
     fn colorize(&self, shade: f64, frame: u32, frames: u32) -> Rgba<u8> {
         let c = |offset: f64| {
-            let pi = std::f64::consts::PI;
             let adjusted_frame = offset + (frame as f64 / frames as f64);
-            let frame_pi = adjusted_frame * pi;
-            let sawtooth = (self.scalar * pi * (frame_pi.sin()).asin()).abs();
+            let frame_pi = adjusted_frame * PI;
+            let sawtooth = (self.scalar * PI * (frame_pi.sin()).asin()).abs();
             return (shade - sawtooth).abs() as u8;
         };
         let rgb: [u8; 4] = [c(self.red), c(self.green), c(self.blue), 1];
