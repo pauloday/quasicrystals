@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use std::f64::consts::PI;
 use crate::Image;
 use crate::input::Opts;
@@ -28,7 +27,7 @@ fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
     return parse_percents(percents);
 }
 
-fn parse_animation(string: &str, frame: u32, frames: u32) -> f64 {
+fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
     let stages: Vec<f64> = (*string.split('-')
         .map(|s| parse_number(s))
         .collect::<Vec<f64>>()).to_vec();
@@ -55,7 +54,7 @@ fn parse_animation(string: &str, frame: u32, frames: u32) -> f64 {
 
 fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
     let angles: Vec<f64> = (*angles_string.split(',')
-        .map(|a| parse_animation(a, frame, frames))
+        .map(|a| parse_angle(a, frame, frames))
         .collect::<Vec<f64>>()).to_vec();
     if percent {
         return parse_percents(angles);
