@@ -21,10 +21,21 @@ fn parse_percents(props: Vec<f64>) -> Vec<f64> {
     return props.iter().map(|p| p * PI).collect();
 }
 
+// to convert an angle of rotation for a proportion:
+// - split circle into S even sections
+// - for each prop, sum it with all the props before for # of S to the end of that prop
+// - multiply # of S by 2pi for angle in rads
 fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
-    let denominator: f64 = props.iter().sum();
-    let percents = props.iter().map(|p| p / denominator).collect();
-    return parse_percents(percents);
+    let sects: f64 = props.iter().sum();
+    let circle_sects = PI / sects;
+    let mut sums = vec![props[0]];
+    for p in &props[1..] {
+        let sum_to_p = *p + sums.last().unwrap();
+        sums.push(sum_to_p);
+    }
+    let r = sums.iter().map(|s| s * circle_sects).collect();
+    println!("{:?}, {:?}", r, sums);
+    return r;
 }
 
 fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
@@ -53,13 +64,18 @@ fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
 }
 
 fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
+    // determine if this is an animated angle, a set of props/percents, or just n even angles
+    if angles_string.parse::<u32>().is_ok() {
+        // this is just a number that represents n even angles
+        let n = angles_string.parse::<u32>().unwrap();
+        return parse_proportions(vec![1.0; n as usize]);
+    } 
+    // otherwise this is a list of proportions/percents, possibly animated
     let angles: Vec<f64> = (*angles_string.split(',')
         .map(|a| parse_angle(a, frame, frames))
         .collect::<Vec<f64>>()).to_vec();
     if percent {
         return parse_percents(angles);
-    } else if angles.len() == 1 {
-        return parse_proportions(vec![1.0; angles[0] as usize]);
     } else {
         return parse_proportions(angles);
     }
