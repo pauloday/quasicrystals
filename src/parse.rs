@@ -22,7 +22,7 @@ fn parse_number(num_string: &str) -> f64 {
 // - for each prop, sum it with all the props before for # of S to the end of that prop
 // - multiply # of S by 2pi for angle in rads
 fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
-    let circle_sects = PI / props.iter().sum();
+    let circle_sects = PI / props.iter().sum::<f64>();
     let mut sums = vec![props[0]];
     for p in &props[1..] {
         let sum_to_p = *p + sums.last().unwrap();

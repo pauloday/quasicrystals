@@ -48,7 +48,7 @@ pub struct Opts {
     #[arg(help = "Scaling factor, lower is more zoomed in")]
     pub scale: u32,
 
-    #[arg(short, long, long_help = COLOR_HELP, default_values = &["sawtooth", "0,0.25,0.5,51"])]
+    #[arg(short, long, long_help = COLOR_HELP, num_args = 2, default_values = &["sawtooth", "0,0.25,0.5,51"])]
     pub colorizer: Vec<String>,
 
     #[arg(
