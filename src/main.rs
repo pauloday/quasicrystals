@@ -39,12 +39,16 @@ struct OutFrame {
     pub number: u32,
 }
 
-fn gen_frames_thread(start: u32,
-                     end: u32,
+fn gen_frames_thread(frames: u32,
+                     threads: u32,
                      thread_num: u32,
                      sender: Sender<OutFrame>,
-                     verbose: bool)
-    -> thread::JoinHandle<()> {
+                     verbose: bool) -> thread::JoinHandle<()> {
+    let frames_chunk = (frames as f32 / threads as f32).ceil() as u32;
+    let start = frames_chunk * thread_num;
+    let maybe_end = frames_chunk * (thread_num + 1);
+    // account for rounding when splitting frames into batches
+    let end = if thread_num == threads - 1 {frames} else {maybe_end};
     return thread::spawn(move || {
         if verbose {
             println!(
@@ -67,36 +71,6 @@ fn gen_frames_thread(start: u32,
             }
         }
     });
-}
-
-fn spawn_thread(frames: u32,
-                threads: u32,
-                thread_num: u32,
-                sender: Sender<OutFrame>,
-                verbose: bool)
-    -> thread::JoinHandle<()> {
-    let frames_chunk = (frames as f32 / threads as f32).ceil() as u32;
-    let start = frames_chunk * thread_num;
-    let end = frames_chunk * (thread_num + 1);
-    let sender_clone = sender.clone();
-    if thread_num == threads - 1 {
-        // on the last thread we use frames as end, to account for rounding when splitting frames
-        return gen_frames_thread(
-            start,
-            frames,
-            thread_num,
-            sender_clone,
-            verbose
-        );
-    } else {
-        return gen_frames_thread(
-            start,
-            end,
-            thread_num,
-            sender_clone,
-            verbose
-        );
-    }
 }
 
 fn main() {
@@ -125,8 +99,8 @@ fn main() {
     );
     if frames == 1 || num_threads == 1 {
         let frame_thread = gen_frames_thread(
-            0,
             frames,
+            num_threads,
             1,
             sender.clone(),
             opts.verbose
@@ -135,7 +109,7 @@ fn main() {
     } else {
         let mut threads: Vec<thread::JoinHandle<_>> = Vec::new();
         for thread_num in 0..num_threads {
-            threads.push(spawn_thread(
+            threads.push(gen_frames_thread(
                     frames,
                     num_threads,
                     thread_num,
