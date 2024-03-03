@@ -12,9 +12,6 @@ fn parse_sep<T: FromStr>(sep_str: &str, sep: char) -> Vec<T>
 where
     <T as FromStr>::Err: Debug,
 {
-    if !sep_str.parse::<T>().is_ok() {
-        println!("{}", sep_str);
-    }
     return sep_str
         .split(sep)
         .map(|s| s.parse::<T>().unwrap())
