@@ -18,12 +18,12 @@ where
         .collect();
 }
 
-fn number_to_percent(num_string: &str) -> f64 {
+fn parse_maybe_frac(num_string: &str) -> f64 {
     if num_string.contains("/") {
         let parts: Vec<f64> = parse_sep::<f64>(num_string, '/');
         return parts[0] / parts[1];
     } else {
-        return num_string.parse::<f64>().unwrap() / 100.0;
+        return num_string.parse::<f64>().unwrap();
     }
 }
 
@@ -43,11 +43,7 @@ fn proportions_to_angles(props: Vec<f64>) -> Vec<f64> {
 }
 
 fn parse_animation(anim_str: &str, frame: u32, frames: u32) -> f64 {
-    let stages: Vec<f64> = (*anim_str
-        .split(':')
-        .map(|s| number_to_percent(s))
-        .collect::<Vec<f64>>())
-    .to_vec();
+    let stages: Vec<f64> = anim_str.split(':').map(parse_maybe_frac).collect();
     // first we find # frames per stage transition
     let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
     // then we find the stage we're transitioning from
@@ -64,12 +60,12 @@ fn parse_animation(anim_str: &str, frame: u32, frames: u32) -> f64 {
     return (trans_prog * (to_stage - from_stage)) + from_stage;
 }
 
-// parse an individual angle, possibly with an animation
+// parse an individual angle, possibly with an animation or fraction
 fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
     if string.contains(":") {
         return parse_animation(string, frame, frames);
     }
-    return number_to_percent(string);
+    return parse_maybe_frac(string);
 }
 
 fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
@@ -79,14 +75,14 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
         let n = angles_string.parse::<u32>().unwrap();
         return proportions_to_angles(vec![1.0; n as usize]);
     }
-    // otherwise this is a list of proportions/percents, possibly animated
-    let angles: Vec<f64> = (*angles_string
+    // otherwise this is a list of proportions or percents, possibly animated
+    let angles = (*angles_string
         .split(',')
         .map(|a| parse_angle(a, frame, frames))
         .collect::<Vec<f64>>())
     .to_vec();
     if percent {
-        return angles.iter().map(|p| p * TAU).collect();
+        return angles.iter().map(|p| (p / 100.0) * TAU).collect();
     } else {
         return proportions_to_angles(angles);
     }
