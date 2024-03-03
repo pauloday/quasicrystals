@@ -1,5 +1,5 @@
-use std::f64::consts::PI;
 use image::Rgba;
+use std::f64::consts::PI;
 
 pub trait Colorizer {
     fn colorize(&self, shade: f64, frame: u32, frames: u32) -> Rgba<u8>;
@@ -11,11 +11,10 @@ pub struct Composite {
     pub blue: ((f64, f64), (u8, u8)),
 }
 
-pub fn map_range(from_range: (f64, f64), to_range: (u8, u8), s: f64) -> u8
-{
-    let mapped = 
-        to_range.1 as f64 + ((s - from_range.0) * (to_range.1 - to_range.0) as f64 / (from_range.1 - from_range.0));
-    return if s > from_range.1 {0} else {mapped as u8};
+pub fn map_range(from_range: (f64, f64), to_range: (u8, u8), s: f64) -> u8 {
+    let mapped = to_range.1 as f64
+        + ((s - from_range.0) * (to_range.1 - to_range.0) as f64 / (from_range.1 - from_range.0));
+    return if s > from_range.1 { 0 } else { mapped as u8 };
 }
 
 impl Colorizer for Composite {
@@ -24,7 +23,8 @@ impl Colorizer for Composite {
             map_range(self.red.0, self.red.1, shade),
             map_range(self.green.0, self.green.1, shade),
             map_range(self.blue.0, self.blue.1, shade),
-            1];
+            1,
+        ];
         return Rgba(rgb);
     }
 }

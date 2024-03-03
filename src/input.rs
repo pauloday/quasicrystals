@@ -7,7 +7,7 @@ static ANGLE_HELP: &str = concat!(
     "If you pass a single number, it'll use that many layers evenly rotated around a circle. ",
     "Portional angles between waves can also be passed as a comma separated list (e.g. 1,2 -> 0°, 240°). ",
     "With the -p flag, the angles will be percents (either 50 or 1/2). ",
-    "You can also add animation to them by passing bar separated numbers in place of an angle, e.g. '0|5|10,10|5|0'. ",
+    "You can also add animation to them by passing ':' separated numbers in place of an angle, e.g. '0:5:10,10:5:0'. ",
     "This will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0."
 );
 
@@ -21,7 +21,7 @@ static COLOR_HELP: &str = concat!(
     "    use sawtooth waves to map a shade to color values, ",
     "r,g,b are the offsets for the wave for that color from 0-0.5, s is a saturation factor"
 );
- 
+
 static FORMAT_HELP: &str = concat!(
     "Ouput format, if gif is used you must pass an argument to output for the filename of the gif. ",
     "Or if you pass a path ending in .gif to the output with no format, it will output a gif."
@@ -34,7 +34,7 @@ static PHASE_HELP: &str = concat!(
 
 #[derive(Parser, Debug)]
 #[command(
-    version = "1.6",
+    version = "1.8",
     author = "Paul O'Day <https://github.com/ertdfgcb/quasicrystals>"
 )]
 pub struct Opts {
@@ -69,7 +69,12 @@ pub struct Opts {
     )]
     pub output: String,
 
-    #[arg(short, long, help = "Allow overwriting of existing images", default_value = "false")]
+    #[arg(
+        short,
+        long,
+        help = "Allow overwriting of existing images",
+        default_value = "false"
+    )]
     pub allow_overwrite: bool,
 
     #[arg(short, long, help = FORMAT_HELP, default_value = "jpg")]
@@ -84,13 +89,21 @@ pub struct Opts {
     #[arg(short, long, help = "Number of threads to use", default_value = "1")]
     pub threads: u32,
 
-    #[arg(short, long, help = "Treat angles as percents (i.e. 0-100). Fractions can also be used (i.e. 1/6)")]
+    #[arg(
+        short,
+        long,
+        help = "Treat angles as percents (i.e. 0-100). Fractions can also be used (i.e. 1/6)"
+    )]
     pub percent: bool,
 
     #[arg(short, long, help = PHASE_HELP, default_value = "1")]
     pub speed: f64,
 
-    #[arg(short, long, help = "Print additional information while generating", default_value = "false")]
+    #[arg(
+        short,
+        long,
+        help = "Print additional information while generating",
+        default_value = "false"
+    )]
     pub verbose: bool,
 }
-
