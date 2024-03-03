@@ -7,12 +7,14 @@ static ANGLE_HELP: &str = concat!(
     "If you pass a single number, it'll use that many layers evenly rotated around a circle. ",
     "Portional angles between waves can also be passed as a comma separated list (e.g. 1,2 -> 0°, 240°). ",
     "With the -p flag, the angles will be percents (either 50 or 1/2). ",
-    "You can also add animation to them by passing dash separated numbers in place of an angle, e.g. '0-5-10,10-5-0'. ",
+    "You can also add animation to them by passing bar separated numbers in place of an angle, e.g. '0|5|10,10|5|0'. ",
     "This will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0."
 );
 
 static COLOR_HELP: &str = concat!(
     "Colorizer, one of:\n",
+    "  composite <r shade range>/<r color range>,<g shade range>/<g color range>,<b shade range>/<b color range>\n",
+    "    Color ranges optional, map a shade range to a color range\n",
     "  greyscale <brighness>\n",
     "    brightness 0 is all black and 255 is all white. 127 is neutral\n",
     "  sawtooth <r>,<g>,<b>,<s>\n",
@@ -48,7 +50,7 @@ pub struct Opts {
     #[arg(help = "Scaling factor, lower is more zoomed in")]
     pub scale: u32,
 
-    #[arg(short, long, long_help = COLOR_HELP, num_args = 2, default_values = &["sawtooth", "0,0.25,0.5,51"])]
+    #[arg(short, long, long_help = COLOR_HELP, num_args = 2, default_values = &["composite", "0-0.4,0.3-0.7,0.6-1"])]
     pub colorizer: Vec<String>,
 
     #[arg(

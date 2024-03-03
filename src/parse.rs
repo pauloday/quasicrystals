@@ -1,16 +1,25 @@
 use std::f64::consts::PI;
+use std::str::FromStr;
+use std::fmt::Debug;
 use crate::Image;
 use crate::input::Opts;
 use crate::color::Colorizer;
 use crate::color::Greyscale;
 use crate::color::Sawtooth;
+use crate::color::Composite;
+
+fn parse_sep<T: FromStr>(sep_str: &str, sep: char) -> Vec<T>
+    where <T as FromStr>::Err: Debug
+{
+    return sep_str
+        .split(sep)
+        .map(|s| s.parse::<T>().unwrap())
+        .collect();
+}
 
 fn parse_number(num_string: &str) -> f64 {
     if num_string.contains("/") {
-        let parts: Vec<f64> = num_string
-            .split("/")
-            .map(|s| s.parse::<f64>().unwrap())
-            .collect();
+        let parts: Vec<f64> = parse_sep::<f64>(num_string, '/');
         return parts[0] / parts[1];
     } else {
         return num_string.parse::<f64>().unwrap() / 100.0;
@@ -33,7 +42,7 @@ fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
 }
 
 fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
-    let stages: Vec<f64> = (*string.split('-')
+    let stages: Vec<f64> = (*string.split('|')
         .map(|s| parse_number(s))
         .collect::<Vec<f64>>()).to_vec();
     // if string with no dash is passed, we can skip the animation parsing
@@ -89,13 +98,35 @@ pub fn parse_image(opts: &Opts, frame: u32) -> Image {
     };
 }
 
+fn parse_composite_ranges(opts: &str) -> ((f64, f64), (u8, u8)) {
+    if opts.contains("/") {
+        let in_out_strs = opts
+            .split('/')
+            .collect::<Vec<&str>>();
+        let in_vals = parse_sep::<f64>(in_out_strs[0], '-');
+        let out_vals = parse_sep::<u8>(in_out_strs[1], '-');
+        return ((in_vals[0], in_vals[1]), (out_vals[0], out_vals[1]));
+    }
+    let in_vals = parse_sep::<f64>(opts, '-');
+    return ((in_vals[0], in_vals[1]), (0u8, 255u8));
+}
+
 pub fn parse_colorizer(opts: &Opts) -> Box<dyn Colorizer> {
     let colorizer = &opts.colorizer[0];
-    let params = (&opts.colorizer[1].split(',')
-                  .map(|s| s.parse::<f64>().unwrap())
-                 .collect::<Vec<f64>>()).to_vec();
-    match &colorizer[..] {
+        match &colorizer[..] {
+        "composite" => {
+            let params = (&opts.colorizer[1].split(',')
+                          .map(parse_composite_ranges)
+                          .collect::<Vec<((f64, f64), (u8, u8))>>()).to_vec();
+            return Box::new(Composite {
+                red: params[0],
+                green: params[1],
+                blue: params[2],
+            })
+
+        }
         "sawtooth" => {
+            let params = parse_sep::<f64>(&opts.colorizer[1], ',');
             return Box::new(Sawtooth {
                 red: params[0],
                 green: params[1],
@@ -104,16 +135,16 @@ pub fn parse_colorizer(opts: &Opts) -> Box<dyn Colorizer> {
             })
         }
         "greyscale" => {
+            let bright = &opts.colorizer[1].parse::<f64>().unwrap();
             return Box::new(Greyscale {
-                brightness: params[0],
+                brightness: *bright,
             })
         }
         _ => {
-            return Box::new(Sawtooth {
-                red: 0.0,
-                green: 0.25,
-                blue: 0.5,
-                scalar: 51.0,
+            return Box::new(Composite {
+                red: ((0.0, 0.4), (0, 255)),
+                green: ((0.3, 0.7), (0, 255)),
+                blue: ((0.6, 1.0), (0, 255))
             })
         }
     }

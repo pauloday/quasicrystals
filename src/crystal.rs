@@ -39,7 +39,7 @@ pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Image) -> RgbaImage {
         let waves = f.angles.iter().map(part_wave);
         let stacked = combine(waves.collect());
         let clamped = (1 as f64).min(stacked.max(0 as f64));
-        let shade = clamped * 255.0;
+        let shade = clamped; // * 255.0;
         *pixel = colorizer.colorize(shade, f.frame, f.frames);
     }
     return imgbuf;
