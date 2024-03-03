@@ -12,6 +12,9 @@ fn parse_sep<T: FromStr>(sep_str: &str, sep: char) -> Vec<T>
 where
     <T as FromStr>::Err: Debug,
 {
+    if !sep_str.parse::<T>().is_ok() {
+        println!("{}", sep_str);
+    }
     return sep_str
         .split(sep)
         .map(|s| s.parse::<T>().unwrap())
@@ -42,6 +45,9 @@ fn proportions_to_angles(props: Vec<f64>) -> Vec<f64> {
 }
 
 fn parse_animation(anim_str: &str, frame: u32, frames: u32) -> f64 {
+    if !anim_str.contains(':') {
+        return anim_str.parse::<f64>().unwrap();
+    }
     let stages: Vec<f64> = anim_str.split(':').map(parse_maybe_frac).collect();
     // first we find # frames per stage transition
     let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
@@ -101,24 +107,38 @@ pub fn parse_image(opts: &Opts, frame: u32) -> Image {
     };
 }
 
-fn parse_composite_ranges(opts: &str) -> ((f64, f64), (u8, u8)) {
+fn parse_composite_ranges(opts: &str, frame: u32, frames: u32) -> ((f64, f64), (u8, u8)) {
+    let handle_anim = |s: &str| {
+        if s.contains(':') {
+            return (s
+                .split('-')
+                .map(|s| parse_animation(s, frame, frames))
+                .collect::<Vec<f64>>())
+            .to_vec();
+        }
+        return parse_sep::<f64>(s, '-');
+    };
+
     if opts.contains("/") {
         let in_out_strs = opts.split('/').collect::<Vec<&str>>();
-        let in_vals = parse_sep::<f64>(in_out_strs[0], '-');
-        let out_vals = parse_sep::<u8>(in_out_strs[1], '-');
+        let in_vals = handle_anim(in_out_strs[0]);
+        let out_vals = handle_anim(in_out_strs[1])
+            .iter()
+            .map(|n| *n as u8)
+            .collect::<Vec<u8>>();
         return ((in_vals[0], in_vals[1]), (out_vals[0], out_vals[1]));
     }
-    let in_vals = parse_sep::<f64>(opts, '-');
+    let in_vals = handle_anim(opts);
     return ((in_vals[0], in_vals[1]), (0u8, 255u8));
 }
 
-pub fn parse_colorizer(opts: &Opts) -> Box<dyn Colorizer> {
+pub fn parse_colorizer(opts: &Opts, frame: u32) -> Box<dyn Colorizer> {
     let colorizer = &opts.colorizer[0];
     match &colorizer[..] {
         "composite" => {
             let params = (&opts.colorizer[1]
                 .split(',')
-                .map(parse_composite_ranges)
+                .map(|s| parse_composite_ranges(s, frame, opts.frames))
                 .collect::<Vec<((f64, f64), (u8, u8))>>())
                 .to_vec();
             return Box::new(Composite {

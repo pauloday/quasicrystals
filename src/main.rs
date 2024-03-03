@@ -63,8 +63,8 @@ fn gen_frames_thread(
             );
         }
         let opts: Opts = input::Opts::parse();
-        let colorizer = parse_colorizer(&opts);
         for f in start..end {
+            let colorizer = parse_colorizer(&opts, f);
             let frame = parse_image(&opts, f);
             let frame_image = crystal::gen(&colorizer, &frame);
             let out_frame = OutFrame {
