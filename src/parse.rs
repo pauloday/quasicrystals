@@ -38,8 +38,7 @@ fn proportions_to_angles(props: Vec<f64>) -> Vec<f64> {
         let sum_to_p = *p + sums.last().unwrap();
         sums.push(sum_to_p);
     }
-    let r = sums.iter().map(|s| s * circle_sects).collect();
-    return r;
+    return sums.iter().map(|s| s * circle_sects).collect();
 }
 
 fn parse_animation(anim_str: &str, frame: u32, frames: u32) -> f64 {
