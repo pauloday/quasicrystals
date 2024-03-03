@@ -34,7 +34,7 @@ static PHASE_HELP: &str = concat!(
 
 #[derive(Parser, Debug)]
 #[command(
-    version = "1.6",
+    version = "1.8",
     author = "Paul O'Day <https://github.com/ertdfgcb/quasicrystals>"
 )]
 pub struct Opts {

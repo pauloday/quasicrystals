@@ -34,23 +34,22 @@ Arguments:
           Image height in pixels
 
   <ANGLES>
-          Proportional angles between waves (e.g. 1,2 -> 0°, 240°).With the -p flag, the angles will be percents (either 50 or 1/2).
-                  If only one number is given it will use that many waves evenly rotated.You can also add animation to them like '0-5-10`,10-5-0';this will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0
+          Number of layers defined by the angle of each layer. If you pass a single number, it'll use that many layers evenly rotated around a circle. Portional angles between waves can also be passed as a comma separated list (e.g. 1,2 -> 0°, 240°). With the -p flag, the angles will be percents (either 50 or 1/2). You can also add animation to them by passing bar separated numbers in place of an angle, e.g. '0|5|10,10|5|0'. This will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0.
 
   <SCALE>
           Scaling factor, lower is more zoomed in
 
 Options:
-  -c, --colorizer <COLORIZER>
+  -c, --colorizer <COLORIZER> <COLORIZER>
           Colorizer, one of:
-          - 'greyscale <brighness>'
-          greyscale colors, brightness 0 will make it all black and 255 will make it all white. 127 is neutral
-          - 'sawtooth <r>,<g>,<b>,<s>'
-          use sawtooth waves to map a shade to color values.\
-          r,g,b are the offsets for the wave for that color from 0-0.5 (after 0.5 it loops).\
-          s is a saturation factor
+            composite <r shade range>/<r color range>,<g shade range>/<g color range>,<b shade range>/<b color range>
+              Color ranges optional, map a shade range to a color range
+            greyscale <brighness>
+              brightness 0 is all black and 255 is all white. 127 is neutral
+            sawtooth <r>,<g>,<b>,<s>
+              use sawtooth waves to map a shade to color values, r,g,b are the offsets for the wave for that color from 0-0.5, s is a saturation factor
           
-          [default: sawtooth 0,0.25,0.5,51]
+          [default: composite 0-0.4,0.3-0.7,0.6-1]
 
   -f, --frames <FRAMES>
           Number of frames to generate
@@ -66,7 +65,7 @@ Options:
           Allow overwriting of existing images
 
   -i, --image-format <IMAGE_FORMAT>
-          Ouput format, if gif is used you must pass an argument to output for the filename of the gif
+          Ouput format, if gif is used you must pass an argument to output for the filename of the gif. Or if you pass a path ending in .gif to the output with no format, it will output a gif.
           
           [default: jpg]
 
@@ -89,7 +88,7 @@ Options:
           Treat angles as percents (i.e. 0-100). Fractions can also be used (i.e. 1/6)
 
   -s, --speed <SPEED>
-          Number of phases waves go through, controls the speed of animation
+          Number of phases waves go through, more phases means the waves move faster, 0 means no movement. But the image can still be animated by passing '-' separated numbers to the angle argument
           
           [default: 1]
 
