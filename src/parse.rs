@@ -42,11 +42,11 @@ fn parse_proportions(props: Vec<f64>) -> Vec<f64> {
 }
 
 fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
-    let stages: Vec<f64> = (*string.split('\')
+    let stages: Vec<f64> = (*string.split(':')
         .map(|s| parse_number(s))
         .collect::<Vec<f64>>()).to_vec();
     // if string with no dash is passed, we can skip the animation parsing
-    if string.contains("-") {
+    if string.contains(":") {
         // first we find # frames per stage transition
         let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
         // then we find the stage we're transitioning from
