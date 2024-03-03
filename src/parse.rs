@@ -4,7 +4,7 @@ use crate::color::Greyscale;
 use crate::color::Sawtooth;
 use crate::input::Opts;
 use crate::Image;
-use std::f64::consts::PI;
+use std::f64::consts::TAU;
 use std::fmt::Debug;
 use std::str::FromStr;
 
@@ -32,7 +32,7 @@ fn number_to_percent(num_string: &str) -> f64 {
 // - for each prop, sum it with all the props before for # of S to the end of that prop
 // - multiply # of S by 2pi for angle in rads
 fn proportions_to_angles(props: Vec<f64>) -> Vec<f64> {
-    let circle_sects = PI / props.iter().sum::<f64>();
+    let circle_sects = TAU / props.iter().sum::<f64>();
     let mut sums = vec![props[0]];
     for p in &props[1..] {
         let sum_to_p = *p + sums.last().unwrap();
@@ -42,32 +42,34 @@ fn proportions_to_angles(props: Vec<f64>) -> Vec<f64> {
     return r;
 }
 
-// parse an individual angle, possibly with an animation
-fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
-    let stages: Vec<f64> = (*string
+fn parse_animation(anim_str: &str, frame: u32, frames: u32) -> f64 {
+    let stages: Vec<f64> = (*anim_str
         .split(':')
         .map(|s| number_to_percent(s))
         .collect::<Vec<f64>>())
     .to_vec();
-    // if string with no dash is passed, we can skip the animation parsing
+    // first we find # frames per stage transition
+    let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
+    // then we find the stage we're transitioning from
+    let from_stage = stages
+        .get((frame as f64 / trans_frames).floor() as usize)
+        .unwrap();
+    // and the one we're going to
+    let to_stage = stages
+        .get((frame as f64 / trans_frames).ceil() as usize)
+        .unwrap();
+    // then we figure out what percent through the transition we are
+    let trans_prog = (frame as f64 % trans_frames) / trans_frames;
+    // finally we can calculate the transitionary value
+    return (trans_prog * (to_stage - from_stage)) + from_stage;
+}
+
+// parse an individual angle, possibly with an animation
+fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
     if string.contains(":") {
-        // first we find # frames per stage transition
-        let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
-        // then we find the stage we're transitioning from
-        let from_stage = stages
-            .get((frame as f64 / trans_frames).floor() as usize)
-            .unwrap();
-        // and the one we're going to
-        let to_stage = stages
-            .get((frame as f64 / trans_frames).ceil() as usize)
-            .unwrap();
-        // then we figure out what percent through the transition we are
-        let trans_prog = (frame as f64 % trans_frames) / trans_frames;
-        // finally we can calculate the transitionary value
-        let ret = (trans_prog * (to_stage - from_stage)) + from_stage;
-        return ret;
+        return parse_animation(string, frame, frames);
     }
-    return stages[0];
+    return number_to_percent(string);
 }
 
 fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
@@ -84,7 +86,7 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
         .collect::<Vec<f64>>())
     .to_vec();
     if percent {
-        return angles.iter().map(|p| p * PI).collect();
+        return angles.iter().map(|p| p * TAU).collect();
     } else {
         return proportions_to_angles(angles);
     }

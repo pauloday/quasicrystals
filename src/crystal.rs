@@ -1,8 +1,8 @@
 extern crate image;
-
 use crate::color::Colorizer;
 use crate::Image;
 use image::RgbaImage;
+use std::f64::consts::TAU;
 
 fn wave(rot: f64, phase: f64, x: f64, y: f64) -> f64 {
     let (srot, crot) = rot.sin_cos();
@@ -24,8 +24,7 @@ fn scaled_point(scale: u32, size: u32, point: u32) -> f64 {
 }
 
 fn frame_phase(frame: u32, frames: u32, phases: f64) -> f64 {
-    let pi = std::f64::consts::PI;
-    return ((2.0 * pi) / frames as f64) * frame as f64 * phases;
+    return (TAU / frames as f64) * frame as f64 * phases;
 }
 
 pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Image) -> RgbaImage {
