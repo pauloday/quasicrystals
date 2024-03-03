@@ -34,7 +34,7 @@ Arguments:
           Image height in pixels
 
   <ANGLES>
-          Number of layers defined by the angle of each layer. If you pass a single number, it'll use that many layers evenly rotated around a circle. Portional angles between waves can also be passed as a comma separated list (e.g. 1,2 -> 0°, 240°). With the -p flag, the angles will be percents (either 50 or 1/2). You can also add animation to them by passing bar separated numbers in place of an angle, e.g. '0|5|10,10|5|0'. This will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0.
+          Number of layers defined by the angle of each layer. If you pass a single number, it'll use that many layers evenly rotated around a circle. Portional angles between waves can also be passed as a comma separated list (e.g. 1,2 -> 0°, 240°). With the -p flag, the angles will be percents (either 50 or 1/2). You can also add animation to them by passing '\' separated numbers in place of an angle, e.g. '0\5\10,10\5\0'. This will make an animation where the angles smoothly go from 0,100 to 50,50 then 100,0.
 
   <SCALE>
           Scaling factor, lower is more zoomed in
