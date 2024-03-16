@@ -130,5 +130,6 @@ pub fn parse_image(opts: &Opts, frame: u32) -> Image {
         x_offset: opts.x_offset,
         y_offset: opts.y_offset,
         angles: parse_angles(&opts.angles, frame, opts.frames, opts.percent),
+        colorizer: parse_colors(&opts.colorizer, frame, opts.frames),
     };
 }

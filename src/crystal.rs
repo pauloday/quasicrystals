@@ -1,5 +1,4 @@
 extern crate image;
-use crate::color::Colorizer;
 use crate::Image;
 use image::RgbaImage;
 use std::f64::consts::TAU;
@@ -27,7 +26,7 @@ fn frame_phase(frame: u32, frames: u32, phases: f64) -> f64 {
     return (TAU / frames as f64) * frame as f64 * phases;
 }
 
-pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Image) -> RgbaImage {
+pub fn gen(f: &Image) -> RgbaImage {
     let mut imgbuf = RgbaImage::new(f.width, f.height);
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
         let max_dim = f.width.max(f.height);
@@ -39,7 +38,7 @@ pub fn gen(colorizer: &Box<dyn Colorizer>, f: &Image) -> RgbaImage {
         let stacked = combine(waves.collect());
         let clamped = (1 as f64).min(stacked.max(0 as f64));
         let shade = clamped; // * 255.0;
-        *pixel = colorizer.colorize(shade, f.frame, f.frames);
+        *pixel = f.colorizer.colorize(shade, f.frame, f.frames);
     }
     return imgbuf;
 }

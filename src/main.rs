@@ -1,5 +1,6 @@
 use crate::input::Opts;
-use crate::parse::{parse_colors, parse_image};
+use crate::parse::parse_image;
+use crate::color::Colorizer;
 use clap::Parser;
 use image::RgbaImage;
 use std::path::Path;
@@ -28,6 +29,7 @@ struct Image {
     pub x_offset: u32,
     pub y_offset: u32,
     pub angles: Vec<f64>,
+    pub colorizer: Box<dyn Colorizer>,
 }
 
 /*
@@ -65,8 +67,7 @@ fn gen_frames_thread(
         let opts: Opts = input::Opts::parse();
         for f in start..end {
             let frame = parse_image(&opts, f);
-            let colorizer = parse_colors(&opts.colorizer, f, opts.frames);
-            let frame_image = crystal::gen(&colorizer, &frame);
+            let frame_image = crystal::gen(&frame);
             let out_frame = OutFrame {
                 frame: frame_image,
                 number: frame.frame,

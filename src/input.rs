@@ -12,14 +12,8 @@ static ANGLE_HELP: &str = concat!(
 );
 
 static COLOR_HELP: &str = concat!(
-    "Colorizer, one of:\n",
-    "  composite <r shade range>/<r color range>,<g shade range>/<g color range>,<b shade range>/<b color range>\n",
+    "<r shade range>~<r color range>,<g shade range>~<g color range>,<b shade range>~<b color range>\n",
     "    Color ranges optional, map a shade range to a color range\n",
-    "  greyscale <brighness>\n",
-    "    brightness 0 is all black and 255 is all white. 127 is neutral\n",
-    "  sawtooth <r>,<g>,<b>,<s>\n",
-    "    use sawtooth waves to map a shade to color values, ",
-    "r,g,b are the offsets for the wave for that color from 0-0.5, s is a saturation factor"
 );
 
 static FORMAT_HELP: &str = concat!(
