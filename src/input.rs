@@ -91,7 +91,7 @@ pub struct Opts {
     pub percent: bool,
 
     #[arg(short, long, help = PHASE_HELP, default_value = "1")]
-    pub speed: f64,
+    pub speed: String,
 
     #[arg(
         short,

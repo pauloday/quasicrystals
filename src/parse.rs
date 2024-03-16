@@ -121,7 +121,7 @@ fn interpolate_angles(angles_string: &String, frame: u32, frames: u32, percent: 
 
 pub fn parse_image(opts: &Opts, frame: u32) -> Image {
     return Image {
-        phases: opts.speed,
+        phases: parse_anim(&opts.speed, frame, opts.frames),
         frame,
         frames: opts.frames,
         scale: opts.scale,

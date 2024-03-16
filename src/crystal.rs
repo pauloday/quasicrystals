@@ -22,12 +22,21 @@ fn scaled_point(scale: u32, size: u32, point: u32) -> f64 {
     return scale as f64 * ((2.0 * point as f64 / (size as f64 - 1.0)) - 1.0);
 }
 
+/*
+ * speed 1 = 1 full phase over course of animation
+ * speed 10 = 10 full phases over course of animation
+ * speed 1:10 = speed increases from 1 phase over anim to 10 phases over anim
+ *                         actual # phases lower than 10 but greater than 1
+ * interp(1:10, 5, 10) = interpolate 5/10 over 1 to 10 = 5
+ * interp / max animation = animation speed scalar
+ */
 fn frame_phase(frame: u32, frames: u32, phases: f64) -> f64 {
-    return (TAU / frames as f64) * frame as f64 * phases;
+    return (TAU * frame as f64 * phases) / frames as f64;
 }
 
 pub fn gen(f: &Image) -> RgbaImage {
     let mut imgbuf = RgbaImage::new(f.width, f.height);
+   // println!("{}, {}", f.phases,  (TAU * f.frame as f64 * f.phases) / f.frames as f64);
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
         let max_dim = f.width.max(f.height);
         let scaled_x = scaled_point(f.scale, max_dim, x + f.x_offset);
