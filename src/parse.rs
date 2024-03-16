@@ -121,14 +121,14 @@ fn interpolate_angles(angles_string: &String, frame: u32, frames: u32, percent: 
 
 pub fn parse_image(opts: &Opts, frame: u32) -> Image {
     return Image {
-        phases: parse_anim(&opts.speed, frame, opts.frames),
         frame,
         frames: opts.frames,
-        scale: opts.scale,
+        scale: parse_anim(&opts.scale, frame, opts.frames),
         width: opts.width,
         height: opts.height,
-        x_offset: opts.x_offset,
-        y_offset: opts.y_offset,
+        x_offset: parse_anim(&opts.x_offset, frame, opts.frames),
+        y_offset: parse_anim(&opts.y_offset, frame, opts.frames),
+        phases: parse_anim(&opts.speed, frame, opts.frames),
         angles: interpolate_angles(&opts.angles, frame, opts.frames, opts.percent),
         colorizer: interpolate_colors(&opts.colorizer, frame, opts.frames),
     };

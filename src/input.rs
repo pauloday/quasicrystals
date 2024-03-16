@@ -42,7 +42,7 @@ pub struct Opts {
     pub angles: String,
 
     #[arg(help = "Scaling factor, lower is more zoomed in")]
-    pub scale: u32,
+    pub scale: String,
 
     #[arg(short, long, long_help = COLOR_HELP, default_value = "0_.4,.3_.7~0_255,.6_1~0_255")]
     pub colorizer: String,
@@ -75,10 +75,10 @@ pub struct Opts {
     pub image_format: String,
 
     #[arg(short, long, help = "X viewport offset", default_value = "0")]
-    pub x_offset: u32,
+    pub x_offset: String,
 
     #[arg(short, long, help = "Y viewport offset", default_value = "0")]
-    pub y_offset: u32,
+    pub y_offset: String,
 
     #[arg(short, long, help = "Number of threads to use", default_value = "1")]
     pub threads: u32,

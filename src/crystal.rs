@@ -18,7 +18,7 @@ fn combine(waves: Vec<f64>) -> f64 {
     return 1.0 - wrapped;
 }
 
-fn scaled_point(scale: u32, size: u32, point: u32) -> f64 {
+fn scaled_point(scale: f64, size: u32, point: f64) -> f64 {
     return scale as f64 * ((2.0 * point as f64 / (size as f64 - 1.0)) - 1.0);
 }
 
@@ -39,8 +39,8 @@ pub fn gen(f: &Image) -> RgbaImage {
    // println!("{}, {}", f.phases,  (TAU * f.frame as f64 * f.phases) / f.frames as f64);
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
         let max_dim = f.width.max(f.height);
-        let scaled_x = scaled_point(f.scale, max_dim, x + f.x_offset);
-        let scaled_y = scaled_point(f.scale, max_dim, y + f.y_offset);
+        let scaled_x = scaled_point(f.scale, max_dim, x as f64 + f.x_offset);
+        let scaled_y = scaled_point(f.scale, max_dim, y as f64 + f.y_offset);
         let phase = frame_phase(f.frame, f.frames, f.phases);
         let part_wave = |rot: &f64| wave(*rot, phase, scaled_x, scaled_y);
         let waves = f.angles.iter().map(part_wave);

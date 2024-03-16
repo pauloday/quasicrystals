@@ -20,14 +20,14 @@ every parameter needed for generating one should be included
 the colorizer will take this object as well
 */
 struct Image {
-    pub phases: f64,
     pub frame: u32,
     pub frames: u32,
-    pub scale: u32,
+    pub scale: f64,
     pub width: u32,
     pub height: u32,
-    pub x_offset: u32,
-    pub y_offset: u32,
+    pub x_offset: f64,
+    pub y_offset: f64,
+    pub phases: f64,
     pub angles: Vec<f64>,
     pub colorizer: Box<dyn Colorizer>,
 }
