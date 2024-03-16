@@ -1,5 +1,5 @@
 use crate::input::Opts;
-use crate::parse::{parse_colorizer, parse_image};
+use crate::parse::{parse_colors, parse_image};
 use clap::Parser;
 use image::RgbaImage;
 use std::path::Path;
@@ -64,8 +64,8 @@ fn gen_frames_thread(
         }
         let opts: Opts = input::Opts::parse();
         for f in start..end {
-            let colorizer = parse_colorizer(&opts, f);
             let frame = parse_image(&opts, f);
+            let colorizer = parse_colors(&opts.colorizer, f, opts.frames);
             let frame_image = crystal::gen(&colorizer, &frame);
             let out_frame = OutFrame {
                 frame: frame_image,

@@ -1,30 +1,92 @@
 use crate::color::Colorizer;
 use crate::color::Composite;
-use crate::color::Greyscale;
-use crate::color::Sawtooth;
 use crate::input::Opts;
 use crate::Image;
 use std::f64::consts::TAU;
 use std::fmt::Debug;
-use std::str::FromStr;
 
-fn parse_sep<T: FromStr>(sep_str: &str, sep: char) -> Vec<T>
-where
-    <T as FromStr>::Err: Debug,
-{
-    return sep_str
-        .split(sep)
-        .map(|s| s.parse::<T>().unwrap())
-        .collect();
-}
+use pest::Parser;
+use pest_derive::Parser;
 
-fn parse_maybe_frac(num_string: &str) -> f64 {
-    if num_string.contains("/") {
-        let parts: Vec<f64> = parse_sep::<f64>(num_string, '/');
+#[derive(Parser)]
+#[grammar = "grammer.pest"]
+pub struct InputParser;
+
+fn parse_number(num_string: &str) -> f64 {
+    let parsed = InputParser::parse(Rule::number, num_string).unwrap().as_str();
+    if parsed.contains("/") {
+        let parts: Vec<f64> = parsed
+            .split("/")
+            .map(|s| s.parse::<f64>().unwrap())
+            .collect();
         return parts[0] / parts[1];
     } else {
-        return num_string.parse::<f64>().unwrap();
+        return parsed.parse::<f64>().unwrap();
     }
+}
+
+fn parse_map<T>(parse_str: &str, rule: Rule, parser: impl Fn(&str) -> T) -> Vec<T> {
+    let parsed = InputParser::parse(rule, parse_str)
+        .expect("parsing failed")
+        .next().unwrap().into_inner();
+    return parsed
+        .map(|f| parser(f.as_str()))
+        .collect::<Vec<T>>();
+}
+
+fn interpolate_animation(stages: Vec<f64>, frame: u32, frames: u32) -> f64 {
+    if stages.len() == 1 {
+        return stages[0];
+    }
+     // first we find # frames per stage transition
+    let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
+    // then we find the stage we're transitioning from
+    let from_stage = stages
+        .get((frame as f64 / trans_frames).floor() as usize)
+        .unwrap();
+    // and the one we're going to
+    let to_stage = stages
+        .get((frame as f64 / trans_frames).ceil() as usize)
+        .unwrap();
+    // then we figure out what percent through the transition we are
+    let trans_prog = (frame as f64 % trans_frames) / trans_frames;
+    // finally we can calculate the transitionary value
+    return (trans_prog * (to_stage - from_stage)) + from_stage;
+}
+
+fn parse_anim(anim_str: &str, frame: u32, frames: u32) -> f64 {
+    let stages = parse_map::<f64>(anim_str, Rule::animation, parse_number);
+    return interpolate_animation(stages, frame, frames);
+}
+
+fn parse_row(row_str: &str, frame: u32, frames: u32) -> Vec<f64> {
+    return parse_map::<f64>(row_str, Rule::row, |a| parse_anim(a, frame, frames));
+}
+
+fn parse_range(range_str: &str, frame: u32, frames: u32) -> Vec<f64> {
+    return parse_map::<f64>(range_str, Rule::range, |a| parse_anim(a, frame, frames));
+}
+
+fn parse_mapping(map_str: &str, frame: u32, frames: u32) -> Vec<Vec<f64>> {
+    return parse_map::<Vec<f64>>(map_str, Rule::mapping, |a| parse_range(a, frame, frames));
+}
+
+pub fn parse_colors(color_str: &str, frame: u32, frames: u32) -> Box<dyn Colorizer> {
+    let colors = parse_map(color_str, Rule::colors, |a| parse_mapping(a, frame, frames));
+    let mapping = |r: usize| {
+        let in_range = (colors[r][0][0], colors[r][0][1]);
+        let out_range = if colors[r].len() == 1 {
+            (0u8, 255u8)
+        } else {
+            (colors[r][1][0] as u8, colors[r][1][1] as u8)
+        };
+        return (in_range, out_range);
+    };
+    return Box::new(Composite {
+                red: mapping(0),
+                green: mapping(1),
+                blue: mapping(2),
+            })
 }
 
 // to convert an angle of rotation for a proportion:
@@ -41,35 +103,6 @@ fn proportions_to_angles(props: Vec<f64>) -> Vec<f64> {
     return sums.iter().map(|s| s * circle_sects).collect();
 }
 
-fn parse_animation(anim_str: &str, frame: u32, frames: u32) -> f64 {
-    if !anim_str.contains(':') {
-        return anim_str.parse::<f64>().unwrap();
-    }
-    let stages: Vec<f64> = anim_str.split(':').map(parse_maybe_frac).collect();
-    // first we find # frames per stage transition
-    let trans_frames: f64 = frames as f64 / (stages.len() as f64 - 1.0);
-    // then we find the stage we're transitioning from
-    let from_stage = stages
-        .get((frame as f64 / trans_frames).floor() as usize)
-        .unwrap();
-    // and the one we're going to
-    let to_stage = stages
-        .get((frame as f64 / trans_frames).ceil() as usize)
-        .unwrap();
-    // then we figure out what percent through the transition we are
-    let trans_prog = (frame as f64 % trans_frames) / trans_frames;
-    // finally we can calculate the transitionary value
-    return (trans_prog * (to_stage - from_stage)) + from_stage;
-}
-
-// parse an individual angle, possibly with an animation or fraction
-fn parse_angle(string: &str, frame: u32, frames: u32) -> f64 {
-    if string.contains(":") {
-        return parse_animation(string, frame, frames);
-    }
-    return parse_maybe_frac(string);
-}
-
 fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
     // determine if this is an animated angle, a set of props/percents, or just n even angles
     if angles_string.parse::<u32>().is_ok() {
@@ -78,11 +111,7 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
         return proportions_to_angles(vec![1.0; n as usize]);
     }
     // otherwise this is a list of proportions or percents, possibly animated
-    let angles = (*angles_string
-        .split(',')
-        .map(|a| parse_angle(a, frame, frames))
-        .collect::<Vec<f64>>())
-    .to_vec();
+    let angles = parse_row(angles_string, frame, frames);
     if percent {
         return angles.iter().map(|p| (p / 100.0) * TAU).collect();
     } else {
@@ -93,7 +122,7 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
 pub fn parse_image(opts: &Opts, frame: u32) -> Image {
     return Image {
         phases: opts.speed,
-        frame: frame,
+        frame,
         frames: opts.frames,
         scale: opts.scale,
         width: opts.width,
@@ -102,69 +131,4 @@ pub fn parse_image(opts: &Opts, frame: u32) -> Image {
         y_offset: opts.y_offset,
         angles: parse_angles(&opts.angles, frame, opts.frames, opts.percent),
     };
-}
-
-fn parse_composite_ranges(opts: &str, frame: u32, frames: u32) -> ((f64, f64), (u8, u8)) {
-    let handle_anim = |s: &str| {
-        if s.contains(':') {
-            return (s
-                .split('-')
-                .map(|s| parse_animation(s, frame, frames))
-                .collect::<Vec<f64>>())
-            .to_vec();
-        }
-        return parse_sep::<f64>(s, '-');
-    };
-
-    if opts.contains("/") {
-        let in_out_strs = opts.split('/').collect::<Vec<&str>>();
-        let in_vals = handle_anim(in_out_strs[0]);
-        let out_vals = handle_anim(in_out_strs[1])
-            .iter()
-            .map(|n| *n as u8)
-            .collect::<Vec<u8>>();
-        return ((in_vals[0], in_vals[1]), (out_vals[0], out_vals[1]));
-    }
-    let in_vals = handle_anim(opts);
-    return ((in_vals[0], in_vals[1]), (0u8, 255u8));
-}
-
-pub fn parse_colorizer(opts: &Opts, frame: u32) -> Box<dyn Colorizer> {
-    let colorizer = &opts.colorizer[0];
-    match &colorizer[..] {
-        "composite" => {
-            let params = (&opts.colorizer[1]
-                .split(',')
-                .map(|s| parse_composite_ranges(s, frame, opts.frames))
-                .collect::<Vec<((f64, f64), (u8, u8))>>())
-                .to_vec();
-            return Box::new(Composite {
-                red: params[0],
-                green: params[1],
-                blue: params[2],
-            });
-        }
-        "sawtooth" => {
-            let params = parse_sep::<f64>(&opts.colorizer[1], ',');
-            return Box::new(Sawtooth {
-                red: params[0],
-                green: params[1],
-                blue: params[2],
-                scalar: params[3],
-            });
-        }
-        "greyscale" => {
-            let bright = &opts.colorizer[1].parse::<f64>().unwrap();
-            return Box::new(Greyscale {
-                brightness: *bright,
-            });
-        }
-        _ => {
-            return Box::new(Composite {
-                red: ((0.0, 0.4), (0, 255)),
-                green: ((0.3, 0.7), (0, 255)),
-                blue: ((0.6, 1.0), (0, 255)),
-            })
-        }
-    }
 }
