@@ -59,8 +59,8 @@ fn parse_anim(anim_str: &str, frame: u32, frames: u32) -> f64 {
     return interpolate_animation(stages, frame, frames);
 }
 
-fn parse_row(row_str: &str, frame: u32, frames: u32) -> Vec<f64> {
-    return parse_map::<f64>(row_str, Rule::row, |a| parse_anim(a, frame, frames));
+ fn parse_angles(row_str: &str, frame: u32, frames: u32) -> Vec<f64> {
+    return parse_map::<f64>(row_str, Rule::angles, |a| parse_anim(a, frame, frames));
 }
 
 fn parse_range(range_str: &str, frame: u32, frames: u32) -> Vec<f64> {
@@ -71,7 +71,7 @@ fn parse_mapping(map_str: &str, frame: u32, frames: u32) -> Vec<Vec<f64>> {
     return parse_map::<Vec<f64>>(map_str, Rule::mapping, |a| parse_range(a, frame, frames));
 }
 
-pub fn parse_colors(color_str: &str, frame: u32, frames: u32) -> Box<dyn Colorizer> {
+pub fn interpolate_colors(color_str: &str, frame: u32, frames: u32) -> Box<dyn Colorizer> {
     let colors = parse_map(color_str, Rule::colors, |a| parse_mapping(a, frame, frames));
     let mapping = |r: usize| {
         let in_range = (colors[r][0][0], colors[r][0][1]);
@@ -103,7 +103,7 @@ fn proportions_to_angles(props: Vec<f64>) -> Vec<f64> {
     return sums.iter().map(|s| s * circle_sects).collect();
 }
 
-fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
+fn interpolate_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) -> Vec<f64> {
     // determine if this is an animated angle, a set of props/percents, or just n even angles
     if angles_string.parse::<u32>().is_ok() {
         // this is just a number that represents n even angles
@@ -111,7 +111,7 @@ fn parse_angles(angles_string: &String, frame: u32, frames: u32, percent: bool) 
         return proportions_to_angles(vec![1.0; n as usize]);
     }
     // otherwise this is a list of proportions or percents, possibly animated
-    let angles = parse_row(angles_string, frame, frames);
+    let angles = parse_angles(angles_string, frame, frames);
     if percent {
         return angles.iter().map(|p| (p / 100.0) * TAU).collect();
     } else {
@@ -129,7 +129,7 @@ pub fn parse_image(opts: &Opts, frame: u32) -> Image {
         height: opts.height,
         x_offset: opts.x_offset,
         y_offset: opts.y_offset,
-        angles: parse_angles(&opts.angles, frame, opts.frames, opts.percent),
-        colorizer: parse_colors(&opts.colorizer, frame, opts.frames),
+        angles: interpolate_angles(&opts.angles, frame, opts.frames, opts.percent),
+        colorizer: interpolate_colors(&opts.colorizer, frame, opts.frames),
     };
 }

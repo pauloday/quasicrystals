@@ -1,0 +1,11 @@
+WHITESPACE = _{ " " }
+number = @{
+    "-"? ~ "."?
+    ~ ( "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)
+    ~ ( ("/" ~ ASCII_DIGIT*) | ("." ~ ASCII_DIGIT*) )?
+}
+animation  =  { number ~ (":" ~ number)* }
+range = { animation ~ ("_" ~ animation)* }
+mapping = { range ~ ("~" ~ range)* }
+colors  = { mapping ~ ("," ~ mapping){, 2} }
+angles = { animation ~ ("," ~ animation)* }
